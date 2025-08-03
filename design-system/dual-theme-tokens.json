@@ -1,0 +1,281 @@
+{
+  "brand": {
+    "name": "RIX",
+    "fullName": "RIX Personal Agent",
+    "tagline": "Personal AI Second Brain",
+    "description": "Ein fortschrittlicher persönlicher AI Assistent als Second Brain System"
+  },
+  "colors": {
+    "light": {
+      "primary": {
+        "background": "#FFFFFF",
+        "backgroundSecondary": "#F8F9FA",
+        "surface": "#FFFFFF",
+        "surfaceSecondary": "#F8F9FA"
+      },
+      "text": {
+        "primary": "#1F2937",
+        "secondary": "#6B7280",
+        "tertiary": "#9CA3AF",
+        "inverse": "#FFFFFF"
+      },
+      "border": {
+        "primary": "#E5E7EB",
+        "secondary": "#F3F4F6",
+        "focus": "#3B82F6"
+      },
+      "accent": {
+        "primary": "#3B82F6",
+        "primaryHover": "#2563EB",
+        "secondary": "#10B981",
+        "warning": "#F59E0B",
+        "error": "#EF4444",
+        "success": "#10B981"
+      },
+      "semantic": {
+        "input": "#F9FAFB",
+        "inputBorder": "#D1D5DB",
+        "shadow": "rgba(0, 0, 0, 0.1)",
+        "overlay": "rgba(0, 0, 0, 0.5)"
+      }
+    },
+    "dark": {
+      "primary": {
+        "background": "#1A1A1A",
+        "backgroundSecondary": "#121212",
+        "surface": "#1A1A1A",
+        "surfaceSecondary": "#2C2C2C"
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#D1D5DB",
+        "tertiary": "#9CA3AF",
+        "quaternary": "#6B7280",
+        "inverse": "#1F2937"
+      },
+      "border": {
+        "primary": "#333333",
+        "secondary": "#2C2C2C",
+        "focus": "#60A5FA"
+      },
+      "accent": {
+        "primary": "#60A5FA",
+        "primaryHover": "#3B82F6",
+        "secondary": "#34D399",
+        "warning": "#FBBF24",
+        "error": "#F87171",
+        "success": "#34D399"
+      },
+      "semantic": {
+        "input": "#1F2937",
+        "inputBorder": "#374151",
+        "shadow": "rgba(0, 0, 0, 0.3)",
+        "overlay": "rgba(0, 0, 0, 0.7)"
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "primary": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "mono": "'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace"
+    },
+    "fontSize": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem"
+    },
+    "fontWeight": {
+      "normal": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700"
+    },
+    "lineHeight": {
+      "tight": "1.25",
+      "normal": "1.5",
+      "relaxed": "1.75"
+    },
+    "scale": {
+      "display": {
+        "fontSize": "3rem",
+        "lineHeight": "1.2",
+        "fontWeight": "700",
+        "letterSpacing": "-0.02em"
+      },
+      "h1": {
+        "fontSize": "2.25rem",
+        "lineHeight": "1.25",
+        "fontWeight": "700",
+        "letterSpacing": "-0.02em"
+      },
+      "h2": {
+        "fontSize": "1.875rem",
+        "lineHeight": "1.33",
+        "fontWeight": "600"
+      },
+      "h3": {
+        "fontSize": "1.5rem",
+        "lineHeight": "1.33",
+        "fontWeight": "600"
+      },
+      "h4": {
+        "fontSize": "1.25rem",
+        "lineHeight": "1.4",
+        "fontWeight": "600"
+      },
+      "body": {
+        "fontSize": "1rem",
+        "lineHeight": "1.5",
+        "fontWeight": "400"
+      },
+      "small": {
+        "fontSize": "0.875rem",
+        "lineHeight": "1.43",
+        "fontWeight": "400"
+      },
+      "caption": {
+        "fontSize": "0.75rem",
+        "lineHeight": "1.33",
+        "fontWeight": "400"
+      }
+    }
+  },
+  "spacing": {
+    "unit": 4,
+    "scale": {
+      "0": "0px",
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "20px",
+      "6": "24px",
+      "8": "32px",
+      "10": "40px",
+      "12": "48px",
+      "16": "64px",
+      "20": "80px",
+      "24": "96px"
+    },
+    "semantic": {
+      "component": "16px",
+      "section": "32px",
+      "page": "48px",
+      "container": "24px"
+    }
+  },
+  "borderRadius": {
+    "none": "0px",
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "2xl": "24px",
+    "full": "9999px"
+  },
+  "shadows": {
+    "none": "none",
+    "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    "dark": {
+      "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
+      "md": "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+      "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)",
+      "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)"
+    }
+  },
+  "iconSystem": {
+    "style": "flat-geometric",
+    "strokeWidth": "1.5px",
+    "sizes": {
+      "xs": "12px",
+      "sm": "16px",
+      "md": "20px",
+      "lg": "24px",
+      "xl": "32px",
+      "2xl": "48px"
+    },
+    "navigation": {
+      "dashboard": "grid-3x3",
+      "projects": "folder-open",
+      "tasks": "check-square",
+      "routines": "repeat",
+      "calendar": "calendar",
+      "intelligence": "bar-chart-3",
+      "settings": "settings"
+    }
+  },
+  "animation": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slow": "300ms"
+    },
+    "easing": {
+      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "out": "cubic-bezier(0, 0, 0.2, 1)",
+      "in": "cubic-bezier(0.4, 0, 1, 1)"
+    }
+  },
+  "breakpoints": {
+    "sm": "640px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1536px"
+  },
+  "components": {
+    "button": {
+      "height": {
+        "sm": "32px",
+        "md": "40px",
+        "lg": "44px"
+      },
+      "padding": {
+        "sm": "8px 12px",
+        "md": "12px 16px",
+        "lg": "16px 24px"
+      }
+    },
+    "input": {
+      "height": "40px",
+      "padding": "8px 12px",
+      "borderRadius": "8px"
+    },
+    "card": {
+      "padding": "24px",
+      "borderRadius": "12px",
+      "border": "1px"
+    },
+    "sidebar": {
+      "width": {
+        "collapsed": "64px",
+        "expanded": "280px"
+      },
+      "itemHeight": "44px",
+      "itemPadding": "12px 16px"
+    }
+  },
+  "accessibility": {
+    "contrast": {
+      "aa": "4.5:1",
+      "aaa": "7:1"
+    },
+    "touchTarget": {
+      "minimum": "44px"
+    },
+    "focusRing": {
+      "width": "2px",
+      "offset": "2px",
+      "style": "solid"
+    }
+  }
+}

@@ -1,0 +1,1040 @@
+/*
+ * /design-system/animation-library.css
+ * Complete animation library for RIX Personal Agent micro-interactions
+ * Provides reusable CSS animations, keyframes, and utilities for consistent UX
+ * RELEVANT FILES: micro-interactions.md, component-specifications.md, brand-guidelines.md, interaction-states.md
+ */
+
+/* ================================
+   RIX ANIMATION FOUNDATION
+   ================================ */
+
+/* CSS Custom Properties for Animation DNA */
+:root {
+  /* Animation Timing */
+  --animation-fast: 150ms;
+  --animation-normal: 200ms;
+  --animation-slow: 300ms;
+  --animation-extra-slow: 400ms;
+  
+  /* Easing Functions */
+  --easing-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --easing-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Animation States */
+  --animation-play-state: running;
+  --animation-fill-mode: both;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animation-fast: 0.01ms;
+    --animation-normal: 0.01ms;
+    --animation-slow: 0.01ms;
+    --animation-extra-slow: 0.01ms;
+    --animation-play-state: paused;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Performance Optimization Base */
+.rix-animate {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ================================
+   CORE KEYFRAME ANIMATIONS
+   ================================ */
+
+/* Fade Animations */
+@keyframes rix-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rix-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes rix-fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide Animations */
+@keyframes rix-slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rix-slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rix-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rix-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rix-slide-out-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes rix-slide-out-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* Scale Animations */
+@keyframes rix-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rix-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes rix-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+/* Rotation Animations */
+@keyframes rix-rotate-in {
+  from {
+    opacity: 0;
+    transform: rotate(-200deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0);
+  }
+}
+
+@keyframes rix-flip-in-x {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateX(90deg);
+  }
+  40% {
+    transform: perspective(400px) rotateX(-20deg);
+  }
+  60% {
+    transform: perspective(400px) rotateX(10deg);
+  }
+  80% {
+    transform: perspective(400px) rotateX(-5deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateX(0deg);
+  }
+}
+
+/* ================================
+   SIDEBAR NAVIGATION ANIMATIONS
+   ================================ */
+
+/* Sidebar Expand/Collapse */
+@keyframes rix-sidebar-expand {
+  from {
+    width: var(--sidebar-width-collapsed, 64px);
+  }
+  to {
+    width: var(--sidebar-width-expanded, 280px);
+  }
+}
+
+@keyframes rix-sidebar-collapse {
+  from {
+    width: var(--sidebar-width-expanded, 280px);
+  }
+  to {
+    width: var(--sidebar-width-collapsed, 64px);
+  }
+}
+
+/* Navigation Item Hover */
+@keyframes rix-nav-item-hover {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(2px);
+  }
+}
+
+/* Submenu Expand/Collapse */
+@keyframes rix-submenu-expand {
+  from {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  to {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 4px;
+    margin-bottom: 8px;
+  }
+}
+
+@keyframes rix-submenu-collapse {
+  from {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 4px;
+    margin-bottom: 8px;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+/* Icon Rotation for Expandable Items */
+@keyframes rix-expand-icon-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+/* ================================
+   PROJECT CARD ANIMATIONS
+   ================================ */
+
+/* Card Hover Elevation */
+@keyframes rix-card-hover {
+  from {
+    transform: translateY(0) scale(1);
+    box-shadow: var(--shadow-sm);
+  }
+  to {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* AI Status Indicators */
+@keyframes rix-ai-status-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes rix-ai-status-ping {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  75%, 100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+/* Priority Badge Animations */
+@keyframes rix-urgent-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* AI Insights Reveal */
+@keyframes rix-insights-reveal {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    max-height: 200px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   ROUTINE BOX ANIMATIONS
+   ================================ */
+
+/* Progress Bar Fill */
+@keyframes rix-progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width, 0%);
+  }
+}
+
+/* Progress Value Count-Up */
+@keyframes rix-count-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Completion Celebration */
+@keyframes rix-completion-celebration {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  75% {
+    transform: scale(1.02) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Coaching Bubble Entrance */
+@keyframes rix-coaching-bubble {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Button Success State */
+@keyframes rix-button-success {
+  0% {
+    background-color: var(--rix-success);
+    transform: scale(1);
+  }
+  50% {
+    background-color: var(--rix-accent-primary);
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: var(--rix-success);
+    transform: scale(1);
+  }
+}
+
+/* ================================
+   THEME TOGGLE ANIMATIONS
+   ================================ */
+
+/* Theme Switch Flash */
+@keyframes rix-theme-switch-flash {
+  0% {
+    box-shadow: 0 0 0 0 var(--rix-accent-primary);
+  }
+  50% {
+    box-shadow: 0 0 0 8px var(--rix-accent-primary)/20;
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--rix-accent-primary)/0;
+  }
+}
+
+/* Icon Cross-Fade */
+@keyframes rix-icon-cross-fade {
+  from {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: rotate(180deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* ================================
+   CALENDAR ANIMATIONS
+   ================================ */
+
+/* Time Block Hover */
+@keyframes rix-time-block-hover {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1px);
+  }
+}
+
+/* Status Pulse */
+@keyframes rix-status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Suggestion Appearance */
+@keyframes rix-suggestion-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Confidence Shimmer */
+@keyframes rix-confidence-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ================================
+   LOADING STATE ANIMATIONS
+   ================================ */
+
+/* Skeleton Pulse */
+@keyframes rix-skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Skeleton Shimmer */
+@keyframes rix-skeleton-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Loading Spinner */
+@keyframes rix-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Dots */
+@keyframes rix-loading-dots {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Loading Fade In */
+@keyframes rix-loading-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ================================
+   FEEDBACK ANIMATIONS
+   ================================ */
+
+/* Success Checkmark */
+@keyframes rix-success-checkmark {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Error Shake */
+@keyframes rix-error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Toast Slide In */
+@keyframes rix-toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Toast Slide Out */
+@keyframes rix-toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Notification Badge Bounce */
+@keyframes rix-badge-bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* ================================
+   UTILITY ANIMATION CLASSES
+   ================================ */
+
+/* Basic Entrance Animations */
+.rix-animate-fade-in {
+  animation: rix-fade-in var(--animation-normal) var(--easing-ease) var(--animation-fill-mode);
+}
+
+.rix-animate-fade-out {
+  animation: rix-fade-out var(--animation-normal) var(--easing-ease) var(--animation-fill-mode);
+}
+
+.rix-animate-slide-in-up {
+  animation: rix-slide-in-up var(--animation-normal) var(--easing-spring) var(--animation-fill-mode);
+}
+
+.rix-animate-slide-in-down {
+  animation: rix-slide-in-down var(--animation-normal) var(--easing-spring) var(--animation-fill-mode);
+}
+
+.rix-animate-slide-in-left {
+  animation: rix-slide-in-left var(--animation-normal) var(--easing-spring) var(--animation-fill-mode);
+}
+
+.rix-animate-slide-in-right {
+  animation: rix-slide-in-right var(--animation-normal) var(--easing-spring) var(--animation-fill-mode);
+}
+
+.rix-animate-scale-in {
+  animation: rix-scale-in var(--animation-normal) var(--easing-spring) var(--animation-fill-mode);
+}
+
+.rix-animate-bounce-in {
+  animation: rix-bounce-in var(--animation-slow) var(--easing-bounce) var(--animation-fill-mode);
+}
+
+/* Looping Animations */
+.rix-animate-pulse {
+  animation: rix-ai-status-pulse 2s infinite var(--easing-ease);
+}
+
+.rix-animate-spin {
+  animation: rix-spin 1s linear infinite;
+}
+
+.rix-animate-ping {
+  animation: rix-ai-status-ping 2s infinite var(--easing-ease);
+}
+
+/* Timing Variations */
+.rix-animate-fast {
+  animation-duration: var(--animation-fast) !important;
+}
+
+.rix-animate-normal {
+  animation-duration: var(--animation-normal) !important;
+}
+
+.rix-animate-slow {
+  animation-duration: var(--animation-slow) !important;
+}
+
+.rix-animate-extra-slow {
+  animation-duration: var(--animation-extra-slow) !important;
+}
+
+/* Delay Utilities */
+.rix-animate-delay-0 { animation-delay: 0ms; }
+.rix-animate-delay-25 { animation-delay: 25ms; }
+.rix-animate-delay-50 { animation-delay: 50ms; }
+.rix-animate-delay-75 { animation-delay: 75ms; }
+.rix-animate-delay-100 { animation-delay: 100ms; }
+.rix-animate-delay-150 { animation-delay: 150ms; }
+.rix-animate-delay-200 { animation-delay: 200ms; }
+.rix-animate-delay-300 { animation-delay: 300ms; }
+.rix-animate-delay-500 { animation-delay: 500ms; }
+
+/* Stagger Effects */
+.rix-stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.rix-stagger-children > *:nth-child(2) { animation-delay: 25ms; }
+.rix-stagger-children > *:nth-child(3) { animation-delay: 50ms; }
+.rix-stagger-children > *:nth-child(4) { animation-delay: 75ms; }
+.rix-stagger-children > *:nth-child(5) { animation-delay: 100ms; }
+.rix-stagger-children > *:nth-child(6) { animation-delay: 125ms; }
+.rix-stagger-children > *:nth-child(7) { animation-delay: 150ms; }
+.rix-stagger-children > *:nth-child(8) { animation-delay: 175ms; }
+.rix-stagger-children > *:nth-child(9) { animation-delay: 200ms; }
+.rix-stagger-children > *:nth-child(10) { animation-delay: 225ms; }
+
+/* Stagger with larger delays */
+.rix-stagger-children-slow > *:nth-child(1) { animation-delay: 0ms; }
+.rix-stagger-children-slow > *:nth-child(2) { animation-delay: 50ms; }
+.rix-stagger-children-slow > *:nth-child(3) { animation-delay: 100ms; }
+.rix-stagger-children-slow > *:nth-child(4) { animation-delay: 150ms; }
+.rix-stagger-children-slow > *:nth-child(5) { animation-delay: 200ms; }
+.rix-stagger-children-slow > *:nth-child(6) { animation-delay: 250ms; }
+.rix-stagger-children-slow > *:nth-child(7) { animation-delay: 300ms; }
+.rix-stagger-children-slow > *:nth-child(8) { animation-delay: 350ms; }
+.rix-stagger-children-slow > *:nth-child(9) { animation-delay: 400ms; }
+.rix-stagger-children-slow > *:nth-child(10) { animation-delay: 450ms; }
+
+/* ================================
+   PERFORMANCE OPTIMIZATION CLASSES
+   ================================ */
+
+/* Hardware Acceleration */
+.rix-hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize for Animations */
+.rix-will-change-transform {
+  will-change: transform;
+}
+
+.rix-will-change-opacity {
+  will-change: opacity;
+}
+
+.rix-will-change-auto {
+  will-change: auto;
+}
+
+/* Remove Will-Change After Animation */
+.rix-animation-complete {
+  will-change: auto;
+}
+
+/* Force GPU Layer */
+.rix-gpu-layer {
+  transform: translate3d(0, 0, 0);
+}
+
+/* ================================
+   ACCESSIBILITY UTILITIES
+   ================================ */
+
+/* Hide from screen readers during animation */
+.rix-animating[aria-hidden="true"] {
+  speak: none;
+}
+
+/* Focus trap during animations */
+.rix-focus-trap {
+  position: relative;
+}
+
+.rix-focus-trap::before,
+.rix-focus-trap::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+/* Enhanced focus indicators */
+.rix-focus-visible:focus-visible {
+  outline: 2px solid var(--rix-accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+  transition: outline var(--animation-fast) var(--easing-ease);
+}
+
+/* ================================
+   THEME TRANSITION UTILITIES
+   ================================ */
+
+/* Global theme transition */
+.rix-theme-transition * {
+  transition: 
+    background-color var(--animation-slow) var(--easing-ease),
+    border-color var(--animation-slow) var(--easing-ease),
+    color var(--animation-slow) var(--easing-ease),
+    box-shadow var(--animation-slow) var(--easing-ease) !important;
+}
+
+/* Exclude elements that should maintain fast transitions */
+.rix-theme-transition *:hover,
+.rix-theme-transition *:focus,
+.rix-theme-transition *:active,
+.rix-theme-transition [data-no-theme-transition] * {
+  transition-duration: var(--animation-fast) !important;
+}
+
+/* ================================
+   COMPONENT-SPECIFIC ANIMATIONS
+   ================================ */
+
+/* Sidebar Navigation */
+.rix-sidebar {
+  transition: width var(--animation-normal) var(--easing-ease);
+}
+
+.rix-nav-item {
+  transition: 
+    background-color var(--animation-fast) var(--easing-ease),
+    color var(--animation-fast) var(--easing-ease),
+    transform var(--animation-fast) var(--easing-ease);
+}
+
+.rix-nav-item:hover {
+  transform: translateX(2px);
+}
+
+.rix-nav-item__icon {
+  transition: transform var(--animation-fast) var(--easing-ease);
+}
+
+.rix-nav-item:hover .rix-nav-item__icon {
+  transform: scale(1.1);
+}
+
+/* Project Cards */
+.rix-project-card {
+  transition: 
+    border-color var(--animation-normal) var(--easing-ease),
+    box-shadow var(--animation-normal) var(--easing-ease),
+    transform var(--animation-normal) var(--easing-ease);
+}
+
+.rix-project-card:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* Routine Boxes */
+.rix-routine-box {
+  transition: 
+    border-color var(--animation-normal) var(--easing-ease),
+    box-shadow var(--animation-normal) var(--easing-ease),
+    transform var(--animation-normal) var(--easing-ease);
+}
+
+.rix-routine-box:hover {
+  transform: translateY(-1px);
+}
+
+/* Progress Bars */
+.rix-progress-fill {
+  transition: width var(--animation-extra-slow) var(--easing-ease);
+}
+
+/* Buttons */
+.rix-btn {
+  transition: 
+    background-color var(--animation-fast) var(--easing-ease),
+    transform var(--animation-fast) var(--easing-ease),
+    box-shadow var(--animation-fast) var(--easing-ease);
+}
+
+.rix-btn:hover {
+  transform: translateY(-1px);
+}
+
+.rix-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Theme Toggle */
+.rix-theme-toggle {
+  transition: 
+    background-color var(--animation-normal) var(--easing-ease),
+    border-color var(--animation-normal) var(--easing-ease);
+}
+
+.rix-theme-toggle-slider {
+  transition: 
+    transform var(--animation-normal) var(--easing-spring),
+    background-color var(--animation-normal) var(--easing-ease),
+    box-shadow var(--animation-normal) var(--easing-ease);
+}
+
+/* Calendar Time Blocks */
+.rix-calendar-time-block {
+  transition: 
+    border-color var(--animation-fast) var(--easing-ease),
+    box-shadow var(--animation-fast) var(--easing-ease),
+    transform var(--animation-fast) var(--easing-ease);
+}
+
+.rix-calendar-time-block:hover {
+  transform: translateY(-1px);
+}
+
+/* Loading States */
+.rix-skeleton {
+  animation: rix-skeleton-pulse 1.5s infinite var(--easing-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.rix-skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: rix-skeleton-shimmer 1.5s infinite;
+}
+
+/* Loading Spinner */
+.rix-spinner {
+  animation: rix-spin 1s linear infinite;
+}
+
+/* Success Icons */
+.rix-success-icon {
+  stroke-dasharray: 100;
+  animation: rix-success-checkmark var(--animation-slow) var(--easing-ease);
+}
+
+/* Error Elements */
+.rix-error-shake {
+  animation: rix-error-shake var(--animation-slow) var(--easing-ease);
+}
+
+/* Toast Notifications */
+.rix-toast {
+  animation: rix-toast-slide-in var(--animation-normal) var(--easing-spring);
+}
+
+.rix-toast.rix-toast--leaving {
+  animation: rix-toast-slide-out var(--animation-normal) var(--easing-ease);
+}
+
+/* Badge Bounce */
+.rix-badge-bounce {
+  animation: rix-badge-bounce 1s ease-in-out;
+}
+
+/* ================================
+   PRINT STYLES
+   ================================ */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* ================================
+   DEBUG UTILITIES
+   ================================ */
+
+/* Debug: Show animation boundaries */
+.rix-debug-animations * {
+  outline: 1px solid rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Debug: Slow down all animations */
+.rix-debug-slow-animations * {
+  animation-duration: 2s !important;
+  transition-duration: 2s !important;
+}
+
+/* Debug: Disable all animations */
+.rix-debug-no-animations *,
+.rix-debug-no-animations *::before,
+.rix-debug-no-animations *::after {
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0ms !important;
+}

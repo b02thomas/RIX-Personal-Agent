@@ -1,0 +1,267 @@
+# RIX Main Agent - Phase 6: N8N Workflow Management Alert Rules
+# Comprehensive alerting for workflow execution monitoring and performance
+
+groups:
+  - name: workflow_execution_alerts
+    rules:
+      # High workflow failure rate
+      - alert: HighWorkflowFailureRate
+        expr: rix:workflow_error_rate_5m > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: workflow_execution
+        annotations:
+          summary: "High workflow failure rate detected"
+          description: "Workflow {{ $labels.workflow_type }} has a failure rate of {{ $value }}% over the last 5 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/workflow-failures"
+          
+      # Critical workflow failure rate
+      - alert: CriticalWorkflowFailureRate
+        expr: rix:workflow_error_rate_5m > 25
+        for: 1m
+        labels:
+          severity: critical
+          component: workflow_execution
+        annotations:
+          summary: "Critical workflow failure rate detected"
+          description: "Workflow {{ $labels.workflow_type }} has a critical failure rate of {{ $value }}% over the last 5 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/workflow-failures"
+          
+      # Slow workflow execution
+      - alert: SlowWorkflowExecution
+        expr: rix:workflow_avg_duration_5m > 30
+        for: 3m
+        labels:
+          severity: warning
+          component: workflow_performance
+        annotations:
+          summary: "Slow workflow execution detected"
+          description: "Workflow {{ $labels.workflow_type }} average execution time is {{ $value }}s over the last 5 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/slow-workflows"
+          
+      # Very slow workflow execution
+      - alert: VerySlowWorkflowExecution
+        expr: rix:workflow_avg_duration_5m > 60
+        for: 1m
+        labels:
+          severity: critical
+          component: workflow_performance
+        annotations:
+          summary: "Very slow workflow execution detected"
+          description: "Workflow {{ $labels.workflow_type }} average execution time is {{ $value }}s over the last 5 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/slow-workflows"
+          
+      # No workflow executions
+      - alert: NoWorkflowExecutions
+        expr: sum(rate(rix_workflow_executions_total[10m])) == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: workflow_execution
+        annotations:
+          summary: "No workflow executions detected"
+          description: "No workflow executions have been recorded in the last 10 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/no-executions"
+
+  - name: n8n_integration_alerts
+    rules:
+      # N8N service unavailable
+      - alert: N8NServiceUnavailable
+        expr: up{job="n8n-external"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: n8n_integration
+        annotations:
+          summary: "N8N service is unavailable"
+          description: "N8N external service is not responding to health checks"
+          runbook_url: "https://docs.rix.ai/runbooks/n8n-unavailable"
+          
+      # High N8N response time
+      - alert: HighN8NResponseTime
+        expr: rix_n8n_request_duration_seconds{quantile="0.95"} > 10
+        for: 3m
+        labels:
+          severity: warning
+          component: n8n_integration
+        annotations:
+          summary: "High N8N response time"
+          description: "95th percentile N8N response time is {{ $value }}s"
+          runbook_url: "https://docs.rix.ai/runbooks/n8n-slow-response"
+          
+      # N8N authentication failures
+      - alert: N8NAuthenticationFailures
+        expr: rate(rix_n8n_auth_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: n8n_integration
+        annotations:
+          summary: "N8N authentication failures detected"
+          description: "N8N authentication is failing at a rate of {{ $value }} failures/sec"
+          runbook_url: "https://docs.rix.ai/runbooks/n8n-auth-failures"
+
+  - name: database_alerts
+    rules:
+      # Database connection failures
+      - alert: DatabaseConnectionFailures
+        expr: rate(rix_database_connection_failures_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection failures"
+          description: "Database connections are failing at a rate of {{ $value }} failures/sec"
+          runbook_url: "https://docs.rix.ai/runbooks/database-connection-failures"
+          
+      # High database query time
+      - alert: HighDatabaseQueryTime
+        expr: rix_database_query_duration_seconds{quantile="0.95"} > 5
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database query time"
+          description: "95th percentile database query time is {{ $value }}s"
+          runbook_url: "https://docs.rix.ai/runbooks/slow-database-queries"
+          
+      # Workflow table growth
+      - alert: HighWorkflowTableGrowth
+        expr: increase(rix_workflow_executions_table_size[1h]) > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High workflow table growth"
+          description: "Workflow executions table has grown by {{ $value }} rows in the last hour"
+          runbook_url: "https://docs.rix.ai/runbooks/table-growth"
+
+  - name: application_alerts
+    rules:
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (rix_memory_usage_bytes / rix_memory_limit_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High memory usage"
+          description: "Application memory usage is {{ $value }}%"
+          runbook_url: "https://docs.rix.ai/runbooks/high-memory-usage"
+          
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: rate(rix_cpu_usage_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High CPU usage"
+          description: "Application CPU usage is {{ $value }}%"
+          runbook_url: "https://docs.rix.ai/runbooks/high-cpu-usage"
+          
+      # Application restart
+      - alert: ApplicationRestart
+        expr: increase(rix_application_restarts_total[10m]) > 0
+        for: 0m
+        labels:
+          severity: info
+          component: application
+        annotations:
+          summary: "Application restarted"
+          description: "RIX Main Agent application has restarted {{ $value }} times in the last 10 minutes"
+          runbook_url: "https://docs.rix.ai/runbooks/application-restart"
+          
+      # WebSocket connection issues
+      - alert: HighWebSocketDisconnections
+        expr: rate(rix_websocket_disconnections_total[5m]) > 1
+        for: 3m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "High WebSocket disconnection rate"
+          description: "WebSocket disconnections are occurring at a rate of {{ $value }}/sec"
+          runbook_url: "https://docs.rix.ai/runbooks/websocket-issues"
+
+  - name: ai_triggered_workflow_alerts
+    rules:
+      # Low AI-triggered workflow confidence
+      - alert: LowAIWorkflowConfidence
+        expr: avg(rix_ai_workflow_confidence) < 0.7
+        for: 5m
+        labels:
+          severity: warning
+          component: ai_workflows
+        annotations:
+          summary: "Low AI-triggered workflow confidence"
+          description: "Average AI workflow trigger confidence is {{ $value }}"
+          runbook_url: "https://docs.rix.ai/runbooks/low-ai-confidence"
+          
+      # High AI-triggered workflow failure rate
+      - alert: HighAIWorkflowFailureRate
+        expr: (rate(rix_ai_workflow_failures_total[5m]) / rate(rix_ai_workflow_triggers_total[5m])) * 100 > 15
+        for: 3m
+        labels:
+          severity: warning
+          component: ai_workflows
+        annotations:
+          summary: "High AI-triggered workflow failure rate"
+          description: "AI-triggered workflows are failing at {{ $value }}% rate"
+          runbook_url: "https://docs.rix.ai/runbooks/ai-workflow-failures"
+          
+      # Unexpected AI workflow trigger spike
+      - alert: AIWorkflowTriggerSpike
+        expr: rate(rix_ai_workflow_triggers_total[5m]) > rate(rix_ai_workflow_triggers_total[30m]) * 3
+        for: 2m
+        labels:
+          severity: warning
+          component: ai_workflows
+        annotations:
+          summary: "AI workflow trigger spike detected"
+          description: "AI-triggered workflows have spiked to {{ $value }}/sec (3x normal rate)"
+          runbook_url: "https://docs.rix.ai/runbooks/ai-workflow-spike"
+
+  - name: business_logic_alerts
+    rules:
+      # User conversation timeout
+      - alert: HighConversationTimeouts
+        expr: rate(rix_conversation_timeouts_total[5m]) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          component: conversation
+        annotations:
+          summary: "High conversation timeout rate"
+          description: "User conversations are timing out at {{ $value }}/sec"
+          runbook_url: "https://docs.rix.ai/runbooks/conversation-timeouts"
+          
+      # Workflow queue backup
+      - alert: WorkflowQueueBackup
+        expr: rix_workflow_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: workflow_queue
+        annotations:
+          summary: "Workflow execution queue backup"
+          description: "Workflow execution queue has {{ $value }} pending items"
+          runbook_url: "https://docs.rix.ai/runbooks/queue-backup"
+          
+      # Context preparation failures
+      - alert: ContextPreparationFailures
+        expr: rate(rix_context_preparation_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: context_management
+        annotations:
+          summary: "Context preparation failures"
+          description: "Context preparation is failing at {{ $value }}/sec"
+          runbook_url: "https://docs.rix.ai/runbooks/context-failures"

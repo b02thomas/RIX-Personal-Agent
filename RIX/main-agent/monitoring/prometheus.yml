@@ -1,0 +1,114 @@
+# RIX Main Agent - Phase 6: N8N Workflow Management Monitoring
+# Prometheus configuration for comprehensive workflow execution monitoring and analytics
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'rix-main-agent'
+    environment: 'development'
+
+rule_files:
+  - "alert_rules.yml"
+
+scrape_configs:
+  # RIX Main Agent metrics
+  - job_name: 'rix-main-agent'
+    static_configs:
+      - targets: ['main-agent:8002']  # Prometheus metrics endpoint
+    scrape_interval: 30s
+    metrics_path: '/metrics'
+    scheme: 'http'
+    scrape_timeout: 10s
+    
+  # PostgreSQL metrics (if postgres_exporter is available)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    scrape_interval: 60s
+    metrics_path: '/metrics'
+    scheme: 'http'
+    scrape_timeout: 30s
+    
+  # Redis metrics (if redis_exporter is available)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s
+    metrics_path: '/metrics'
+    scheme: 'http'
+    scrape_timeout: 10s
+    
+  # N8N metrics (external service)
+  - job_name: 'n8n-external'
+    static_configs:
+      - targets: ['n8n.smb-ai-solution.com:443']
+    scrape_interval: 60s
+    metrics_path: '/metrics'
+    scheme: 'https'
+    scrape_timeout: 30s
+    honor_labels: true
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Remote write configuration for long-term storage (optional)
+remote_write:
+  - url: "http://prometheus:9090/api/v1/write"
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'rix_.*'
+        target_label: __tmp_keep
+        replacement: 'true'
+      - source_labels: [__tmp_keep]
+        regex: 'true'
+        action: keep
+
+# Recording rules for workflow analytics
+recording_rules:
+  - name: workflow_performance
+    interval: 60s
+    rules:
+      - record: rix:workflow_success_rate_5m
+        expr: |
+          rate(rix_workflow_executions_successful_total[5m]) / 
+          rate(rix_workflow_executions_total[5m]) * 100
+        labels:
+          aggregation: '5m'
+          
+      - record: rix:workflow_avg_duration_5m
+        expr: |
+          rate(rix_workflow_execution_duration_seconds_sum[5m]) / 
+          rate(rix_workflow_execution_duration_seconds_count[5m])
+        labels:
+          aggregation: '5m'
+          
+      - record: rix:ai_triggered_workflows_rate_5m
+        expr: |
+          rate(rix_workflow_ai_triggered_total[5m])
+        labels:
+          aggregation: '5m'
+          
+      - record: rix:workflow_error_rate_5m
+        expr: |
+          rate(rix_workflow_executions_failed_total[5m]) / 
+          rate(rix_workflow_executions_total[5m]) * 100
+        labels:
+          aggregation: '5m'
+
+# Storage configuration
+storage:
+  tsdb:
+    retention: '30d'
+    path: '/prometheus'
+    wal-compression: true
+
+# Performance tuning
+query:
+  max_concurrency: 20
+  timeout: 2m
+  max_samples: 50000000
