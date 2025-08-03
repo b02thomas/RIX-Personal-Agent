@@ -31,7 +31,12 @@
       "Bash(npm test)",
       "Bash(npm test:*)",
       "Bash(mv:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git rm:*)",
+      "Bash(gh repo create:*)",
+      "Bash(gh auth:*)",
+      "Bash(npm:*)",
+      "Bash(docker:*)"
     ],
     "deny": []
   }
