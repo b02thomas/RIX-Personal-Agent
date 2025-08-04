@@ -1,10 +1,10 @@
 # FastAPI and ASGI Server
-fastapi==0.104.1
+fastapi==0.115.0
 uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+python-multipart==0.0.18
 
 # Authentication & Security
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
 # Database
@@ -26,12 +26,12 @@ aiohttp>=3.9.1,<3.11.0
 websockets==12.0
 
 # Validation & Serialization
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.9.2
+pydantic-settings==2.6.1
 email-validator==2.2.0
 
 # NLP Libraries (pattern matching only)
-nltk==3.8.1
+nltk>=3.9,<4.0
 
 # Logging & Monitoring
 structlog==23.2.0

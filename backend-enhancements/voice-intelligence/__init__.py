@@ -37,9 +37,9 @@ Usage:
     )
 """
 
+from .audio_utils import AudioUtils
 from .enhanced_voice_processor import EnhancedVoiceProcessor
 from .voice_session_manager import VoiceSessionManager
-from .audio_utils import AudioUtils
 
 __version__ = "1.0.0"
 __author__ = "RIX Development Team"
@@ -47,7 +47,7 @@ __description__ = "RIX Voice Intelligence Phase 1 - Enhanced Voice Processor Fou
 
 __all__ = [
     "EnhancedVoiceProcessor",
-    "VoiceSessionManager", 
+    "VoiceSessionManager",
     "AudioUtils",
 ]
 
@@ -60,7 +60,7 @@ SUPPORTED_LANGUAGES = ["de", "en", "auto"]
 # Integration notes for future phases
 FUTURE_PHASES = {
     2: "Intent Classification and Context Understanding",
-    3: "MCP Router Integration and Workflow Triggering", 
+    3: "MCP Router Integration and Workflow Triggering",
     4: "Advanced German NLP and Conversational AI",
-    5: "Multi-modal Voice Intelligence Integration"
+    5: "Multi-modal Voice Intelligence Integration",
 }

@@ -9,6 +9,8 @@ from datetime import date, datetime, timedelta
 from typing import Any, Dict, Optional
 
 from app.middleware.auth import get_current_user
+from app.models.chat import WorkflowType
+from app.models.n8n import N8NWorkflowRequest
 from app.models.schemas import (  # Intelligence response models; Standard response models
     APIResponse,
     CalendarOptimizationResponse,
@@ -16,16 +18,14 @@ from app.models.schemas import (  # Intelligence response models; Standard respo
     ProjectHealthResponse,
     RoutineCoachingResponse,
 )
+from app.services.context_manager import context_manager
 from app.services.intelligence.behavioral_analytics import behavioral_analytics_service
 from app.services.intelligence.calendar_optimizer import calendar_optimizer_service
 from app.services.intelligence.project_health import project_health_service
 from app.services.intelligence.routine_coach import routine_coaching_service
 from app.services.mcp_router import mcp_router
-from app.services.context_manager import context_manager
 from app.services.n8n_client import n8n_client
 from app.services.websocket_manager import websocket_manager
-from app.models.chat import WorkflowType
-from app.models.n8n import N8NWorkflowRequest
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query
 
 logger = logging.getLogger(__name__)
@@ -37,9 +37,7 @@ router = APIRouter()
 
 @router.post("/routine-coaching")
 async def routine_coaching_analysis(
-    request: Dict[str, Any], 
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    request: Dict[str, Any], background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user routines and provide AI-powered coaching suggestions
@@ -51,21 +49,15 @@ async def routine_coaching_analysis(
             raise HTTPException(status_code=400, detail="Message is required")
 
         conversation_id = request.get("conversation_id", f"conv-{uuid.uuid4().hex[:8]}")
-        
+
         # Notify connected clients about processing start
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "routine_coaching", 
-                "started",
-                conversation_id
+                current_user["user_id"], "routine_coaching", "started", conversation_id
             )
 
         # Prepare context for N8N workflow
-        context = await context_manager.prepare_routine_coaching_context(
-            user_id=current_user["user_id"],
-            message=message
-        )
+        context = await context_manager.prepare_routine_coaching_context(user_id=current_user["user_id"], message=message)
 
         # Create N8N workflow request
         n8n_request = N8NWorkflowRequest(
@@ -73,12 +65,12 @@ async def routine_coaching_analysis(
             user_id=current_user["user_id"],
             conversation_id=conversation_id,
             payload=context,
-            metadata=request.get("context", {})
+            metadata=request.get("context", {}),
         )
 
         # Execute N8N workflow
         n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
+
         if not n8n_response.success:
             raise HTTPException(status_code=500, detail="Routine coaching analysis failed")
 
@@ -90,29 +82,26 @@ async def routine_coaching_analysis(
                 "routines_analyzed": len(context.get("routines", [])),
                 "completion_rate": context.get("statistics", {}).get("average_completion_rate", 0),
                 "current_streak": context.get("statistics", {}).get("streak_days", 0),
-                "improvement_trend": context.get("statistics", {}).get("improvement_trend", "unknown")
+                "improvement_trend": context.get("statistics", {}).get("improvement_trend", "unknown"),
             },
             "recommendations": n8n_response.data.get("recommendations", []),
             "processing_info": {
                 "workflow_type": WorkflowType.ROUTINE_COACHING.value,
                 "confidence": n8n_response.confidence or 0.9,
                 "execution_id": n8n_response.execution_id,
-                "processing_time": n8n_response.processing_time
+                "processing_time": n8n_response.processing_time,
             },
             "metadata": {
                 "context_prepared": True,
                 "routines_count": len(context.get("routines", [])),
-                "analysis_timestamp": datetime.utcnow().isoformat()
-            }
+                "analysis_timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
         # Notify completion
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "routine_coaching", 
-                "completed",
-                conversation_id
+                current_user["user_id"], "routine_coaching", "completed", conversation_id
             )
 
         return response
@@ -122,10 +111,7 @@ async def routine_coaching_analysis(
     except Exception as e:
         logger.error(f"Routine coaching analysis failed: {e}")
         if websocket_manager.is_user_connected(current_user["user_id"]):
-            await websocket_manager.send_error_message(
-                current_user["user_id"], 
-                f"Routine coaching analysis failed: {str(e)}"
-            )
+            await websocket_manager.send_error_message(current_user["user_id"], f"Routine coaching analysis failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Routine coaching analysis failed")
 
 
@@ -145,9 +131,7 @@ async def get_routine_coaching(routine_id: str = Path(...), current_user: dict =
 
 @router.post("/project-intelligence")
 async def project_intelligence_analysis(
-    request: Dict[str, Any], 
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    request: Dict[str, Any], background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user projects and calculate AI health scores with insights
@@ -159,21 +143,15 @@ async def project_intelligence_analysis(
             raise HTTPException(status_code=400, detail="Message is required")
 
         conversation_id = request.get("conversation_id", f"conv-{uuid.uuid4().hex[:8]}")
-        
+
         # Notify connected clients about processing start
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "project_intelligence", 
-                "started",
-                conversation_id
+                current_user["user_id"], "project_intelligence", "started", conversation_id
             )
 
         # Prepare context for N8N workflow
-        context = await context_manager.prepare_project_intelligence_context(
-            user_id=current_user["user_id"],
-            message=message
-        )
+        context = await context_manager.prepare_project_intelligence_context(user_id=current_user["user_id"], message=message)
 
         # Create N8N workflow request
         n8n_request = N8NWorkflowRequest(
@@ -181,12 +159,12 @@ async def project_intelligence_analysis(
             user_id=current_user["user_id"],
             conversation_id=conversation_id,
             payload=context,
-            metadata=request.get("context", {})
+            metadata=request.get("context", {}),
         )
 
         # Execute N8N workflow
         n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
+
         if not n8n_response.success:
             raise HTTPException(status_code=500, detail="Project intelligence analysis failed")
 
@@ -198,29 +176,26 @@ async def project_intelligence_analysis(
                 "projects_analyzed": len(context.get("projects", [])),
                 "average_health_score": context.get("insights", {}).get("average_health_score", 0),
                 "at_risk_count": context.get("insights", {}).get("at_risk_count", 0),
-                "top_performing": context.get("insights", {}).get("top_performing_project")
+                "top_performing": context.get("insights", {}).get("top_performing_project"),
             },
             "recommendations": n8n_response.data.get("recommendations", []),
             "processing_info": {
                 "workflow_type": WorkflowType.PROJECT_INTELLIGENCE.value,
                 "confidence": n8n_response.confidence or 0.85,
                 "execution_id": n8n_response.execution_id,
-                "processing_time": n8n_response.processing_time
+                "processing_time": n8n_response.processing_time,
             },
             "metadata": {
                 "context_prepared": True,
                 "projects_count": len(context.get("projects", [])),
-                "analysis_timestamp": datetime.utcnow().isoformat()
-            }
+                "analysis_timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
         # Notify completion
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "project_intelligence", 
-                "completed",
-                conversation_id
+                current_user["user_id"], "project_intelligence", "completed", conversation_id
             )
 
         return response
@@ -231,8 +206,7 @@ async def project_intelligence_analysis(
         logger.error(f"Project intelligence analysis failed: {e}")
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_error_message(
-                current_user["user_id"], 
-                f"Project intelligence analysis failed: {str(e)}"
+                current_user["user_id"], f"Project intelligence analysis failed: {str(e)}"
             )
         raise HTTPException(status_code=500, detail="Project intelligence analysis failed")
 
@@ -253,9 +227,7 @@ async def get_project_intelligence(project_id: str = Path(...), current_user: di
 
 @router.post("/calendar-optimization")
 async def calendar_optimization_analysis(
-    request: Dict[str, Any], 
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    request: Dict[str, Any], background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user calendar and provide intelligent scheduling optimization
@@ -267,21 +239,15 @@ async def calendar_optimization_analysis(
             raise HTTPException(status_code=400, detail="Message is required")
 
         conversation_id = request.get("conversation_id", f"conv-{uuid.uuid4().hex[:8]}")
-        
+
         # Notify connected clients about processing start
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "calendar_optimization", 
-                "started",
-                conversation_id
+                current_user["user_id"], "calendar_optimization", "started", conversation_id
             )
 
         # Prepare context for N8N workflow
-        context = await context_manager.prepare_calendar_optimization_context(
-            user_id=current_user["user_id"],
-            message=message
-        )
+        context = await context_manager.prepare_calendar_optimization_context(user_id=current_user["user_id"], message=message)
 
         # Create N8N workflow request
         n8n_request = N8NWorkflowRequest(
@@ -289,12 +255,12 @@ async def calendar_optimization_analysis(
             user_id=current_user["user_id"],
             conversation_id=conversation_id,
             payload=context,
-            metadata=request.get("context", {})
+            metadata=request.get("context", {}),
         )
 
         # Execute N8N workflow
         n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
+
         if not n8n_response.success:
             raise HTTPException(status_code=500, detail="Calendar optimization analysis failed")
 
@@ -306,29 +272,26 @@ async def calendar_optimization_analysis(
                 "events_analyzed": len(context.get("calendar_events", [])),
                 "meeting_density": context.get("schedule_analysis", {}).get("meeting_density", 0),
                 "productivity_windows": context.get("patterns", {}).get("productivity_peaks", []),
-                "conflicts_detected": len(context.get("patterns", {}).get("common_conflicts", []))
+                "conflicts_detected": len(context.get("patterns", {}).get("common_conflicts", [])),
             },
             "recommendations": n8n_response.data.get("recommendations", []),
             "processing_info": {
                 "workflow_type": WorkflowType.CALENDAR_OPTIMIZATION.value,
                 "confidence": n8n_response.confidence or 0.8,
                 "execution_id": n8n_response.execution_id,
-                "processing_time": n8n_response.processing_time
+                "processing_time": n8n_response.processing_time,
             },
             "metadata": {
                 "context_prepared": True,
                 "events_count": len(context.get("calendar_events", [])),
-                "analysis_timestamp": datetime.utcnow().isoformat()
-            }
+                "analysis_timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
         # Notify completion
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_processing_status(
-                current_user["user_id"], 
-                "calendar_optimization", 
-                "completed",
-                conversation_id
+                current_user["user_id"], "calendar_optimization", "completed", conversation_id
             )
 
         return response
@@ -339,8 +302,7 @@ async def calendar_optimization_analysis(
         logger.error(f"Calendar optimization analysis failed: {e}")
         if websocket_manager.is_user_connected(current_user["user_id"]):
             await websocket_manager.send_error_message(
-                current_user["user_id"], 
-                f"Calendar optimization analysis failed: {str(e)}"
+                current_user["user_id"], f"Calendar optimization analysis failed: {str(e)}"
             )
         raise HTTPException(status_code=500, detail="Calendar optimization analysis failed")
 
