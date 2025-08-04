@@ -1,0 +1,561 @@
+/* /01-implementation/color-refinement/component-styles/button-styles.css */
+/* Button component styles with refined color scheme and consistent interaction patterns */
+/* Implements exact color values, 6px border radius, and 44px touch targets */
+/* RELEVANT FILES: color-system.css, updated-globals.css, ui/button.tsx, design-system.css */
+
+/* ===== BASE BUTTON STYLES ===== */
+.rix-button {
+  /* Layout and sizing */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--button-height-md);
+  padding: var(--padding-md);
+  
+  /* Typography */
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  
+  /* Appearance */
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  user-select: none;
+  
+  /* Transitions */
+  transition: var(--transition-normal);
+  
+  /* Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.rix-button:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: var(--state-focus-outline-offset);
+}
+
+.rix-button:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+  transform: none !important;
+  pointer-events: none;
+}
+
+/* ===== BUTTON VARIANTS ===== */
+
+/* Primary Button */
+.rix-button--primary {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.rix-button--primary:hover:not(:disabled) {
+  background: var(--primary-blue-dark);
+  border-color: var(--primary-blue-dark);
+  box-shadow: var(--shadow-blue);
+  transform: translateY(-1px) translateZ(0);
+}
+
+.rix-button--primary:active {
+  transform: translateY(0) translateZ(0);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.rix-button--primary:disabled {
+  background: var(--state-disabled-bg);
+  border-color: var(--state-disabled-border);
+  color: var(--state-disabled-text);
+  box-shadow: none;
+}
+
+/* Secondary Button */
+.rix-button--secondary {
+  background: var(--card-background);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.rix-button--secondary:hover:not(:disabled) {
+  background: var(--card-background-hover);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px) translateZ(0);
+}
+
+.rix-button--secondary:active {
+  transform: translateY(0) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.rix-button--secondary:disabled {
+  background: var(--state-disabled-bg);
+  border-color: var(--state-disabled-border);
+  color: var(--state-disabled-text);
+}
+
+/* Outline Button */
+.rix-button--outline {
+  background: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.rix-button--outline:hover:not(:disabled) {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+  transform: translateY(-1px) translateZ(0);
+}
+
+.rix-button--outline:active {
+  transform: translateY(0) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.rix-button--outline:disabled {
+  border-color: var(--state-disabled-border);
+  color: var(--state-disabled-text);
+}
+
+/* Ghost Button */
+.rix-button--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+}
+
+.rix-button--ghost:hover:not(:disabled) {
+  background: var(--card-background);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.rix-button--ghost:active {
+  background: var(--card-background-hover);
+}
+
+.rix-button--ghost:disabled {
+  color: var(--state-disabled-text);
+}
+
+/* Destructive Button */
+.rix-button--destructive {
+  background: var(--error-color);
+  border-color: var(--error-color);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.rix-button--destructive:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px) translateZ(0);
+}
+
+.rix-button--destructive:active {
+  transform: translateY(0) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.rix-button--destructive:disabled {
+  background: var(--state-disabled-bg);
+  border-color: var(--state-disabled-border);
+  color: var(--state-disabled-text);
+  box-shadow: none;
+}
+
+/* Link Button */
+.rix-button--link {
+  background: transparent;
+  border-color: transparent;
+  color: var(--primary-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  min-height: auto;
+  padding: var(--space-1) var(--space-2);
+}
+
+.rix-button--link:hover:not(:disabled) {
+  color: var(--primary-blue-light);
+  text-decoration: none;
+  transform: none;
+}
+
+.rix-button--link:disabled {
+  color: var(--state-disabled-text);
+  text-decoration: none;
+}
+
+/* ===== BUTTON SIZES ===== */
+
+/* Small Button */
+.rix-button--sm {
+  min-height: var(--button-height-sm);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  gap: var(--space-1);
+}
+
+/* Large Button */
+.rix-button--lg {
+  min-height: var(--button-height-lg);
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--text-base);
+  gap: var(--space-3);
+}
+
+/* Extra Large Button */
+.rix-button--xl {
+  min-height: var(--button-height-xl);
+  padding: var(--space-5) var(--space-8);
+  font-size: var(--text-lg);
+  gap: var(--space-3);
+}
+
+/* ===== ICON BUTTONS ===== */
+.rix-button--icon {
+  padding: 0;
+  width: var(--button-height-md);
+  min-width: var(--button-height-md);
+  border-radius: var(--button-radius);
+}
+
+.rix-button--icon.rix-button--sm {
+  width: var(--button-height-sm);
+  min-width: var(--button-height-sm);
+}
+
+.rix-button--icon.rix-button--lg {
+  width: var(--button-height-lg);
+  min-width: var(--button-height-lg);
+}
+
+.rix-button--icon.rix-button--xl {
+  width: var(--button-height-xl);
+  min-width: var(--button-height-xl);
+}
+
+/* Circular icon buttons */
+.rix-button--icon-circle {
+  border-radius: 50%;
+}
+
+/* ===== BUTTON GROUPS ===== */
+.rix-button-group {
+  display: inline-flex;
+  border-radius: var(--button-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.rix-button-group .rix-button {
+  border-radius: 0;
+  border-right-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.rix-button-group .rix-button:first-child {
+  border-top-left-radius: var(--button-radius);
+  border-bottom-left-radius: var(--button-radius);
+}
+
+.rix-button-group .rix-button:last-child {
+  border-top-right-radius: var(--button-radius);
+  border-bottom-right-radius: var(--button-radius);
+  border-right-width: 1px;
+}
+
+.rix-button-group .rix-button:hover,
+.rix-button-group .rix-button:focus-visible {
+  z-index: 2;
+  border-right-width: 1px;
+}
+
+.rix-button-group .rix-button:hover + .rix-button {
+  border-left-width: 0;
+}
+
+/* ===== LOADING STATES ===== */
+.rix-button--loading {
+  color: transparent;
+  pointer-events: none;
+  position: relative;
+}
+
+.rix-button--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: button-spin 1s linear infinite;
+}
+
+.rix-button--loading.rix-button--primary::after,
+.rix-button--loading.rix-button--destructive::after {
+  border-top-color: white;
+}
+
+.rix-button--loading.rix-button--secondary::after,
+.rix-button--loading.rix-button--outline::after,
+.rix-button--loading.rix-button--ghost::after {
+  border-top-color: var(--text-primary);
+}
+
+@keyframes button-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== BUTTON CONTENT ===== */
+.rix-button__icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex-shrink: 0;
+}
+
+.rix-button--sm .rix-button__icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.rix-button--lg .rix-button__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.rix-button--xl .rix-button__icon {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+.rix-button__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Icon-only buttons hide text */
+.rix-button--icon .rix-button__text {
+  display: none;
+}
+
+/* ===== SPECIAL BUTTON TYPES ===== */
+
+/* Floating Action Button */
+.rix-button--fab {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
+.rix-button--fab:hover:not(:disabled) {
+  box-shadow: var(--shadow-xl);
+  transform: scale(1.05) translateZ(0);
+}
+
+@media (max-width: 768px) {
+  .rix-button--fab {
+    bottom: calc(var(--bottom-nav-height) + var(--space-4));
+    right: var(--space-4);
+  }
+}
+
+/* Toggle Button */
+.rix-button--toggle {
+  background: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.rix-button--toggle:hover:not(:disabled) {
+  background: var(--card-background);
+  border-color: var(--border-color-light);
+  color: var(--text-primary);
+}
+
+.rix-button--toggle[aria-pressed="true"] {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+}
+
+.rix-button--toggle[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--primary-blue-dark);
+  border-color: var(--primary-blue-dark);
+}
+
+/* Dropdown Button */
+.rix-button--dropdown {
+  position: relative;
+}
+
+.rix-button--dropdown::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-left: var(--space-1);
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Ensure sufficient color contrast */
+@media (prefers-contrast: high) {
+  .rix-button--primary {
+    border: 2px solid white;
+  }
+  
+  .rix-button--secondary,
+  .rix-button--outline {
+    border-width: 2px;
+  }
+  
+  .rix-button--ghost:hover {
+    border: 2px solid var(--text-primary);
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .rix-button {
+    transition: none !important;
+  }
+  
+  .rix-button:hover,
+  .rix-button:active {
+    transform: none !important;
+  }
+  
+  .rix-button--loading::after {
+    animation: none !important;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .rix-button {
+    min-height: var(--touch-target-comfortable);
+  }
+  
+  .rix-button--sm {
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Remove hover effects on touch devices */
+  .rix-button:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .rix-button--primary:hover {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+  
+  .rix-button--secondary:hover {
+    background: var(--card-background);
+    border-color: var(--border-color);
+  }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+  .rix-button {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .rix-button--sm {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .rix-button--lg {
+    padding: var(--space-4) var(--space-6);
+  }
+  
+  .rix-button-group {
+    flex-direction: column;
+  }
+  
+  .rix-button-group .rix-button {
+    border-radius: 0;
+    border-right-width: 1px;
+    border-bottom-width: 0;
+  }
+  
+  .rix-button-group .rix-button:first-child {
+    border-radius: var(--button-radius) var(--button-radius) 0 0;
+  }
+  
+  .rix-button-group .rix-button:last-child {
+    border-radius: 0 0 var(--button-radius) var(--button-radius);
+    border-bottom-width: 1px;
+  }
+}
+
+/* ===== DARK MODE OPTIMIZATIONS ===== */
+.rix-button--primary {
+  /* Add subtle glow in dark mode */
+  position: relative;
+}
+
+.rix-button--primary::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+  z-index: -1;
+}
+
+.rix-button--primary:hover:not(:disabled)::before {
+  opacity: 0.1;
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.rix-button {
+  /* Enable hardware acceleration for smooth animations */
+  will-change: transform;
+}
+
+/* Clean up will-change after interactions */
+.rix-button:not(:hover):not(:focus):not(:active) {
+  will-change: auto;
+}
+
+/* Optimize rendering for frequently used buttons */
+.rix-button--primary,
+.rix-button--icon {
+  contain: layout style;
+}

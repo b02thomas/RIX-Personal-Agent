@@ -9,7 +9,7 @@ from datetime import datetime
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.models.health import HealthCheckResponse, ServiceStatus, ServiceCheck, SystemMetrics
-from app.services.database import database
+from app.core.database import database
 from app.services.n8n_client import n8n_client
 
 logger = get_logger(__name__)

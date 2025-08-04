@@ -1,0 +1,31 @@
+# docker-compose.yml
+# Docker Compose configuration for RIX Personal Agent
+# Sets up PostgreSQL with pgvector extension for semantic search
+# RELEVANT FILES: main-agent/requirements.txt, RIX/package.json, .env files
+
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rix-postgres
+    environment:
+      POSTGRES_DB: rix_personal_agent
+      POSTGRES_USER: rix_user
+      POSTGRES_PASSWORD: development_password
+      POSTGRES_HOST_AUTH_METHOD: md5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./RIX/main-agent/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rix_user -d rix_personal_agent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

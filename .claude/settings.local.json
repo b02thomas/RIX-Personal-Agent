@@ -36,7 +36,12 @@
       "Bash(gh repo create:*)",
       "Bash(gh auth:*)",
       "Bash(npm:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(git stash:*)",
+      "Bash(kill:*)",
+      "Bash(PORT=8002 python3 main.py)",
+      "Bash(pkill:*)",
+      "Bash(pwdx:*)"
     ],
     "deny": []
   }

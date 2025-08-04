@@ -1,0 +1,583 @@
+/* Enhanced Sidebar Styles - FIXED VERSION */
+/* Implements exact color scheme from tech-stack-config.md with improved visual hierarchy */
+/* RELEVANT FILES: design-system.css, enhanced-sidebar.tsx, tech-stack-config.md */
+
+/* ===== DESIGN SYSTEM COLORS (Exact Values) ===== */
+:root {
+  --primary-blue: #0066FF;
+  --primary-blue-dark: #0052CC;
+  --background-dark: #0F1115;
+  --card-background: #1A1D23;
+  --border-color: #2D3748;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0AEC0;
+}
+
+/* ===== SIDEBAR CONTAINER ===== */
+.rix-sidebar {
+  width: var(--sidebar-width-expanded);
+  min-width: var(--sidebar-width-collapsed);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  background: var(--background-dark);
+  border-right: 1px solid var(--border-color);
+  transition: width 200ms ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.rix-sidebar--collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+/* ===== SIDEBAR HEADER ===== */
+.rix-sidebar-header {
+  height: 64px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.rix-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rix-sidebar-brand__icon {
+  width: 32px;
+  height: 32px;
+  color: var(--primary-blue);
+  flex-shrink: 0;
+}
+
+.rix-sidebar-brand__text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  transition: opacity 200ms ease-out;
+  overflow: hidden;
+}
+
+.rix-sidebar--collapsed .rix-sidebar-brand__text {
+  opacity: 0;
+  width: 0;
+}
+
+.rix-sidebar-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 200ms ease-out;
+  flex-shrink: 0;
+}
+
+.rix-sidebar-toggle:hover {
+  background: var(--card-background);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.rix-sidebar-toggle:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* ===== NAVIGATION ITEMS ===== */
+.rix-nav-item {
+  /* ENHANCED: Better touch targets and spacing */
+  min-height: 44px;
+  padding: 10px 12px;
+  margin: 2px 8px;
+  border-radius: 8px;
+  
+  /* FIXED: Enhanced visual structure */
+  border: 1px solid transparent;
+  background: transparent;
+  
+  /* IMPROVED: Professional color scheme */
+  color: var(--text-secondary);
+  
+  /* ENHANCED: Smooth transitions */
+  transition: all 200ms ease-out;
+  
+  /* IMPROVED: Better typography */
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  
+  /* Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.rix-nav-item:hover {
+  background: var(--card-background);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  
+  /* ENHANCED: Subtle interactive feedback */
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rix-nav-item--active {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue-dark);
+  color: #FFFFFF;
+  
+  /* ENHANCED: Active state with shadow */
+  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);
+  transform: translateX(0);
+}
+
+.rix-nav-item--active:hover {
+  background: var(--primary-blue-dark);
+  transform: translateX(0);
+}
+
+/* ENHANCED: Expandable item indicators */
+.rix-nav-item--expandable {
+  position: relative;
+}
+
+.rix-nav-item--expandable::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  opacity: 0.5;
+  transition: opacity 150ms ease-out;
+}
+
+.rix-nav-item--expandable:hover::after {
+  opacity: 1;
+}
+
+.rix-nav-item--active::after {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.rix-nav-item__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.rix-nav-item__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+  flex: 1;
+  min-width: 0;
+}
+
+.rix-sidebar--collapsed .rix-nav-item__label {
+  opacity: 0;
+  width: 0;
+}
+
+/* FIXED: Chevron expansion icon */
+.rix-nav-item__expand-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+  
+  /* ENHANCED: Smooth rotation */
+  transition: transform 200ms ease-out;
+  transform-origin: center;
+}
+
+.rix-nav-item__expand-icon--rotated {
+  transform: rotate(90deg);
+}
+
+/* ENHANCED: Hover effect for expand icon */
+.rix-nav-item:hover .rix-nav-item__expand-icon {
+  color: var(--primary-blue);
+}
+
+.rix-nav-item--active .rix-nav-item__expand-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== SUBMENU STYLES ===== */
+.rix-nav-submenu {
+  margin-left: 20px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  
+  /* ENHANCED: Visual separation */
+  border-left: 2px solid var(--primary-blue);
+  padding-left: 12px;
+  
+  /* IMPROVED: Background for better contrast */
+  background: rgba(26, 29, 35, 0.3);
+  border-radius: 0 6px 6px 0;
+  
+  /* FIXED: Smooth animation */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 200ms ease-out;
+  
+  /* Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.rix-nav-submenu--expanded {
+  max-height: 400px;
+  opacity: 1;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.rix-sidebar--collapsed .rix-nav-submenu {
+  display: none;
+}
+
+/* ===== SUBMENU ITEMS ===== */
+.rix-nav-submenu-item {
+  min-height: 36px;
+  padding: 8px 12px;
+  margin: 2px 0;
+  border-radius: 6px;
+  
+  /* IMPROVED: Typography */
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.3;
+  
+  /* ENHANCED: Better contrast */
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  
+  /* ENHANCED: Interaction */
+  transition: all 150ms ease-out;
+  cursor: pointer;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  text-align: left;
+}
+
+.rix-nav-submenu-item:hover {
+  background: var(--card-background);
+  color: var(--text-primary);
+  
+  /* ENHANCED: Micro-interaction */
+  padding-left: 16px;
+  border-left: 2px solid var(--primary-blue);
+}
+
+.rix-nav-submenu-item--active {
+  background: rgba(0, 102, 255, 0.1);
+  color: var(--primary-blue);
+  border-left: 2px solid var(--primary-blue);
+  
+  /* ENHANCED: Active state */
+  font-weight: 500;
+}
+
+.rix-nav-submenu-item__icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.rix-nav-submenu-item__label {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ENHANCED: Project status indicators */
+.project-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  
+  /* Default inactive state */
+  background: var(--border-color);
+  transition: all 150ms ease-out;
+}
+
+.project-status-indicator--active {
+  background: #34D399;
+  box-shadow: 0 0 4px rgba(52, 211, 153, 0.3);
+}
+
+.project-status-indicator--recent {
+  background: var(--primary-blue);
+  box-shadow: 0 0 4px rgba(0, 102, 255, 0.3);
+}
+
+/* ===== SIDEBAR FOOTER ===== */
+.rix-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.rix-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+}
+
+.rix-sidebar-user__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.rix-sidebar-user__info {
+  flex: 1;
+  min-width: 0;
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.rix-sidebar--collapsed .rix-sidebar-user__info {
+  opacity: 0;
+  width: 0;
+}
+
+.rix-sidebar-user__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rix-sidebar-user__email {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== TOOLTIPS ===== */
+.nav-item-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1F2937;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-out;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  /* Arrow */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1F2937;
+  }
+}
+
+.rix-nav-item:hover .nav-item-tooltip {
+  opacity: 1;
+}
+
+/* ===== FOCUS STATES ===== */
+.rix-nav-item:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+  border-color: var(--primary-blue);
+}
+
+.rix-nav-submenu-item:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 1px;
+}
+
+/* Remove default focus for non-keyboard users */
+.rix-nav-item:focus:not(:focus-visible),
+.rix-nav-submenu-item:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes submenu-expand {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes submenu-collapse {
+  0% {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Apply animations when class is toggled */
+.rix-nav-submenu--expanding {
+  animation: submenu-expand 200ms ease-out forwards;
+}
+
+.rix-nav-submenu--collapsing {
+  animation: submenu-collapse 200ms ease-out forwards;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 767px) {
+  .rix-sidebar {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .rix-sidebar {
+    width: var(--sidebar-width-collapsed);
+  }
+  
+  .rix-sidebar--collapsed .nav-item-tooltip {
+    display: block;
+  }
+  
+  .rix-nav-item__label {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .rix-nav-item,
+  .rix-nav-submenu,
+  .rix-nav-item__expand-icon,
+  .rix-sidebar-toggle,
+  .rix-sidebar-brand__text,
+  .rix-sidebar-user__info,
+  .nav-item-tooltip {
+    transition: none;
+  }
+  
+  .rix-nav-submenu--expanding,
+  .rix-nav-submenu--collapsing {
+    animation: none;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .rix-nav-item--active {
+    border: 2px solid white;
+  }
+  
+  .rix-nav-submenu-item--active {
+    border: 2px solid var(--primary-blue);
+  }
+  
+  .rix-border-color {
+    --border-color: #808080;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.rix-nav-item,
+.rix-nav-submenu,
+.rix-nav-item__expand-icon {
+  /* Enable hardware acceleration for smooth animations */
+  will-change: transform, opacity;
+}
+
+/* Clean up will-change after animations complete */
+.rix-nav-item:not(:hover),
+.rix-nav-submenu:not(.rix-nav-submenu--expanded) {
+  will-change: auto;
+}

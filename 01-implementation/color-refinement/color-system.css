@@ -1,0 +1,454 @@
+/* /01-implementation/color-refinement/color-system.css */
+/* Complete color variable definitions and unified design system for RIX */
+/* Implements exact color values from tech-stack-config.md with consistent spacing and transitions */
+/* RELEVANT FILES: tech-stack-config.md, globals.css, component-styles/, updated-globals.css */
+
+/* ===== CORE COLOR SYSTEM (EXACT VALUES) ===== */
+:root {
+  /* Primary Colors - Exact values from tech-stack-config.md */
+  --primary-blue: #0066FF;
+  --primary-blue-dark: #0052CC;
+  --primary-blue-light: #3385FF;
+  --primary-blue-alpha-10: rgba(0, 102, 255, 0.1);
+  --primary-blue-alpha-20: rgba(0, 102, 255, 0.2);
+  --primary-blue-alpha-30: rgba(0, 102, 255, 0.3);
+  
+  /* Background Colors */
+  --background-dark: #0F1115;
+  --background-secondary: #121517;
+  --card-background: #1A1D23;
+  --card-background-hover: #1F242B;
+  --overlay-background: rgba(15, 17, 21, 0.95);
+  
+  /* Border & Divider Colors */
+  --border-color: #2D3748;
+  --border-color-light: #3A4553;
+  --border-color-dark: #252B35;
+  --divider-color: #1E2328;
+  
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0AEC0;
+  --text-muted: #718096;
+  --text-disabled: #4A5568;
+  --text-inverse: #1A1D23;
+  
+  /* State Colors */
+  --success-color: #34D399;
+  --success-background: rgba(52, 211, 153, 0.1);
+  --warning-color: #FBBF24;
+  --warning-background: rgba(251, 191, 36, 0.1);
+  --error-color: #EF4444;
+  --error-background: rgba(239, 68, 68, 0.1);
+  --info-color: #60A5FA;
+  --info-background: rgba(96, 165, 250, 0.1);
+  
+  /* Interactive States */
+  --hover-overlay: rgba(255, 255, 255, 0.05);
+  --active-overlay: rgba(255, 255, 255, 0.1);
+  --focus-ring: var(--primary-blue);
+  --focus-ring-offset: 2px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-blue: 0 4px 20px rgba(0, 102, 255, 0.3);
+  --shadow-blue-lg: 0 8px 32px rgba(0, 102, 255, 0.4);
+}
+
+/* ===== SPACING SYSTEM (UNIFIED) ===== */
+:root {
+  /* Standard Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  
+  /* Component Specific Spacing */
+  --padding-sm: var(--space-2) var(--space-3);
+  --padding-md: var(--space-3) var(--space-4);
+  --padding-lg: var(--space-4) var(--space-6);
+  --padding-xl: var(--space-6) var(--space-8);
+  
+  /* Container Spacing */
+  --container-padding-mobile: var(--space-4);
+  --container-padding-tablet: var(--space-6);
+  --container-padding-desktop: var(--space-8);
+  --container-max-width: 1400px;
+  
+  /* Section Gaps */
+  --gap-sm: var(--space-2);
+  --gap-md: var(--space-4);
+  --gap-lg: var(--space-6);
+  --gap-xl: var(--space-8);
+}
+
+/* ===== BORDER RADIUS SYSTEM ===== */
+:root {
+  /* Standard Border Radius Values */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Component Specific Radius */
+  --button-radius: var(--radius-md);      /* 6px for buttons */
+  --card-radius: var(--radius-lg);        /* 8px for cards */
+  --input-radius: var(--radius-md);       /* 6px for inputs */
+  --bubble-radius: var(--radius-xl);      /* 12px for chat bubbles */
+  --modal-radius: var(--radius-2xl);      /* 16px for modals */
+  --sphere-radius: var(--radius-full);    /* Full round for AI sphere */
+}
+
+/* ===== TRANSITION SYSTEM ===== */
+:root {
+  /* Standard Timing Functions */
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0.0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Standard Durations */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  
+  /* Component Transitions */
+  --transition-fast: all var(--duration-fast) var(--ease-out);
+  --transition-normal: all var(--duration-normal) var(--ease-out);
+  --transition-slow: all var(--duration-slow) var(--ease-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-out);
+  --transition-colors: color var(--duration-normal) var(--ease-out), 
+                      background-color var(--duration-normal) var(--ease-out), 
+                      border-color var(--duration-normal) var(--ease-out);
+}
+
+/* ===== TYPOGRAPHY SYSTEM ===== */
+:root {
+  /* Font Families */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", 
+               sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", 
+               "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, 
+               "Liberation Mono", Menlo, monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ===== COMPONENT SIZE SYSTEM ===== */
+:root {
+  /* Touch Target Sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-target-large: 56px;
+  
+  /* Button Sizes */
+  --button-height-sm: 32px;
+  --button-height-md: var(--touch-target-min);
+  --button-height-lg: var(--touch-target-comfortable);
+  --button-height-xl: var(--touch-target-large);
+  
+  /* Input Sizes */
+  --input-height: var(--touch-target-min);
+  --input-height-lg: var(--touch-target-comfortable);
+  
+  /* Icon Sizes */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+  --icon-2xl: 48px;
+  
+  /* Avatar Sizes */
+  --avatar-sm: 24px;
+  --avatar-md: 32px;
+  --avatar-lg: 40px;
+  --avatar-xl: 48px;
+  --avatar-2xl: 64px;
+}
+
+/* ===== LAYOUT SYSTEM ===== */
+:root {
+  /* Sidebar Dimensions */
+  --sidebar-width-collapsed: 64px;
+  --sidebar-width-expanded: 280px;
+  --sidebar-transition: width var(--duration-normal) var(--ease-out);
+  
+  /* Header Heights */
+  --header-height-mobile: 56px;
+  --header-height-desktop: 64px;
+  
+  /* Bottom Navigation */
+  --bottom-nav-height: 64px;
+  --bottom-nav-safe-area: env(safe-area-inset-bottom, 0px);
+  
+  /* Modal & Overlay */
+  --modal-max-width: 640px;
+  --modal-max-height: 80vh;
+  --overlay-z-index: 1000;
+  --modal-z-index: 1010;
+  --toast-z-index: 1020;
+  --tooltip-z-index: 1030;
+  
+  /* AI Sphere */
+  --ai-sphere-size: 64px;
+  --ai-sphere-size-mobile: 56px;
+  --ai-sphere-z-index: 9999;
+}
+
+/* ===== COMPONENT STATES ===== */
+:root {
+  /* Default State */
+  --state-default-bg: transparent;
+  --state-default-border: var(--border-color);
+  --state-default-text: var(--text-secondary);
+  
+  /* Hover State */
+  --state-hover-bg: var(--card-background);
+  --state-hover-border: var(--border-color-light);
+  --state-hover-text: var(--text-primary);
+  
+  /* Active State */
+  --state-active-bg: var(--primary-blue);
+  --state-active-border: var(--primary-blue-dark);
+  --state-active-text: #FFFFFF;
+  
+  /* Focus State */
+  --state-focus-outline: 2px solid var(--focus-ring);
+  --state-focus-outline-offset: var(--focus-ring-offset);
+  
+  /* Disabled State */
+  --state-disabled-bg: var(--border-color-dark);
+  --state-disabled-border: var(--border-color);
+  --state-disabled-text: var(--text-disabled);
+  --state-disabled-opacity: 0.5;
+}
+
+/* ===== DARK THEME SPECIFIC ADJUSTMENTS ===== */
+:root {
+  /* Enhanced contrast for better readability */
+  --text-contrast-high: #F7FAFC;
+  --text-contrast-medium: #E2E8F0;
+  --text-contrast-low: #CBD5E0;
+  
+  /* Subtle background variations */
+  --background-subtle: #171A1F;
+  --background-elevated: #1E2328;
+  --background-overlay: #252B35;
+  
+  /* Interactive feedback colors */
+  --feedback-hover: rgba(255, 255, 255, 0.05);
+  --feedback-active: rgba(255, 255, 255, 0.1);
+  --feedback-focus: rgba(0, 102, 255, 0.2);
+}
+
+/* ===== UTILITY CLASSES FOR CONSISTENT APPLICATION ===== */
+
+/* Color Applications */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-blue { color: var(--primary-blue); }
+
+.bg-primary { background-color: var(--primary-blue); }
+.bg-card { background-color: var(--card-background); }
+.bg-background { background-color: var(--background-dark); }
+
+.border-default { border-color: var(--border-color); }
+.border-light { border-color: var(--border-color-light); }
+
+/* State Classes */
+.state-default {
+  background: var(--state-default-bg);
+  border-color: var(--state-default-border);
+  color: var(--state-default-text);
+}
+
+.state-hover:hover {
+  background: var(--state-hover-bg);
+  border-color: var(--state-hover-border);
+  color: var(--state-hover-text);
+}
+
+.state-active {
+  background: var(--state-active-bg);
+  border-color: var(--state-active-border);
+  color: var(--state-active-text);
+}
+
+.state-focus:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: var(--state-focus-outline-offset);
+}
+
+.state-disabled {
+  background: var(--state-disabled-bg);
+  border-color: var(--state-disabled-border);
+  color: var(--state-disabled-text);
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* Transition Classes */
+.transition-fast { transition: var(--transition-fast); }
+.transition-normal { transition: var(--transition-normal); }
+.transition-slow { transition: var(--transition-slow); }
+.transition-colors { transition: var(--transition-colors); }
+.transition-transform { transition: var(--transition-transform); }
+
+/* Hardware Acceleration */
+.hw-accel {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Touch Target Sizing */
+.touch-target-min { min-width: var(--touch-target-min); min-height: var(--touch-target-min); }
+.touch-target-comfortable { min-width: var(--touch-target-comfortable); min-height: var(--touch-target-comfortable); }
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+  
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #666666;
+    --border-color-light: #808080;
+    --text-secondary: #CCCCCC;
+    --shadow-md: none;
+    --shadow-lg: none;
+  }
+  
+  .state-active {
+    border: 2px solid white;
+  }
+  
+  .state-focus:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+/* Large Text Support */
+@media (prefers-reduced-data: reduce) {
+  :root {
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    --shadow-blue: none;
+    --shadow-blue-lg: none;
+  }
+}
+
+/* ===== COMPONENT INTEGRATION HELPERS ===== */
+
+/* Ensures all components use the design system */
+.rix-component {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--background-dark);
+}
+
+/* Standard card styling */
+.rix-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+}
+
+.rix-card:hover {
+  background: var(--card-background-hover);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-md);
+}
+
+/* Standard button styling */
+.rix-button {
+  min-height: var(--button-height-md);
+  padding: var(--padding-md);
+  border-radius: var(--button-radius);
+  font-weight: var(--font-medium);
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.rix-button:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: var(--state-focus-outline-offset);
+}
+
+/* Standard input styling */
+.rix-input {
+  height: var(--input-height);
+  padding: var(--padding-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background: var(--background-dark);
+  color: var(--text-primary);
+  transition: var(--transition-colors);
+}
+
+.rix-input:focus {
+  border-color: var(--primary-blue);
+  outline: none;
+}
+
+.rix-input::placeholder {
+  color: var(--text-muted);
+}

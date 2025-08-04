@@ -1,0 +1,545 @@
+/* /02-implementation/mobile-optimization/responsive-breakpoints.css */
+/* Complete mobile breakpoint system with touch-optimized responsive design */
+/* Provides comprehensive breakpoint management for mobile, tablet, and desktop experiences */
+/* RELEVANT FILES: updated-globals.css, color-system.css, mobile-navigation.tsx, touch-optimizations.css */
+
+/* ===== RESPONSIVE BREAKPOINT SYSTEM ===== */
+
+/* 
+ * Mobile-first responsive design system
+ * Base: Mobile (<768px) - Primary target
+ * Tablet: 768px-1023px - Secondary target  
+ * Desktop: ≥1024px - Enhanced experience
+ */
+
+:root {
+  /* ===== BREAKPOINT DEFINITIONS ===== */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+  --breakpoint-wide: 1536px;
+  
+  /* ===== MOBILE-FIRST CONTAINER SYSTEM ===== */
+  /* Base mobile padding */
+  --container-padding: var(--space-4); /* 16px */
+  --container-max-width: 100%;
+  
+  /* Mobile navigation heights */
+  --mobile-nav-height: 60px;
+  --mobile-bottom-nav-height: 64px;
+  --mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Touch-optimized spacing */
+  --mobile-touch-spacing: var(--space-3); /* 12px */
+  --mobile-section-spacing: var(--space-6); /* 24px */
+  
+  /* Mobile typography scale */
+  --mobile-text-scale: 0.9;
+  --mobile-heading-scale: 0.95;
+  
+  /* Mobile interaction zones */
+  --mobile-interaction-zone: 48px; /* Larger than 44px for comfortable touch */
+  --mobile-scrollbar-width: 0px; /* Hidden on mobile */
+}
+
+/* ===== TABLET ADJUSTMENTS ===== */
+@media screen and (min-width: 768px) {
+  :root {
+    --container-padding: var(--space-6); /* 24px */
+    --container-max-width: 768px;
+    
+    /* Tablet-specific spacing */
+    --mobile-touch-spacing: var(--space-4); /* 16px */
+    --mobile-section-spacing: var(--space-8); /* 32px */
+    
+    /* Typography adjustments */
+    --mobile-text-scale: 1;
+    --mobile-heading-scale: 1;
+    
+    /* Tablet navigation */
+    --mobile-nav-height: 64px;
+    --mobile-bottom-nav-height: 0px; /* Sidebar takes over */
+  }
+}
+
+/* ===== DESKTOP OPTIMIZATIONS ===== */
+@media screen and (min-width: 1024px) {
+  :root {
+    --container-padding: var(--space-8); /* 32px */
+    --container-max-width: 1200px;
+    
+    /* Desktop spacing */
+    --mobile-touch-spacing: var(--space-2); /* 8px - mouse precision */
+    --mobile-section-spacing: var(--space-10); /* 40px */
+    
+    /* Desktop navigation */
+    --mobile-nav-height: 0px; /* Sidebar only */
+    --mobile-bottom-nav-height: 0px;
+    
+    /* Scrollbar visible on desktop */
+    --mobile-scrollbar-width: 6px;
+  }
+}
+
+/* ===== WIDE SCREEN ENHANCEMENTS ===== */
+@media screen and (min-width: 1280px) {
+  :root {
+    --container-max-width: 1400px;
+    --container-padding: var(--space-12); /* 48px */
+  }
+}
+
+/* ===== ULTRA-WIDE SCREEN SUPPORT ===== */
+@media screen and (min-width: 1536px) {
+  :root {
+    --container-max-width: 1600px;
+  }
+}
+
+/* ===== MOBILE LAYOUT FOUNDATION ===== */
+
+/* Reset mobile viewport to prevent zoom */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
+  maximum-scale: 1;
+  user-scalable: no;
+}
+
+/* Mobile-optimized HTML base */
+html {
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  
+  /* Improve touch scrolling */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  
+  /* Prevent text resize on orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Mobile body optimizations */
+body {
+  /* Mobile-first typography */
+  font-size: calc(var(--text-base) * var(--mobile-text-scale));
+  
+  /* Prevent rubber band scrolling */
+  overscroll-behavior: none;
+  
+  /* Mobile-optimized line height */
+  line-height: var(--leading-relaxed);
+  
+  /* Touch action optimization */
+  touch-action: pan-y pinch-zoom;
+}
+
+/* ===== RESPONSIVE CONTAINER SYSTEM ===== */
+
+.rix-mobile-container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* Mobile-safe content area */
+.rix-mobile-content {
+  /* Account for mobile navigation */
+  padding-top: var(--mobile-nav-height);
+  padding-bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-area-bottom));
+  min-height: calc(100vh - var(--mobile-nav-height) - var(--mobile-bottom-nav-height));
+}
+
+/* Tablet content adjustments */
+@media screen and (min-width: 768px) {
+  .rix-mobile-content {
+    padding-bottom: var(--mobile-safe-area-bottom);
+  }
+}
+
+/* Desktop content (sidebar layout) */
+@media screen and (min-width: 1024px) {
+  .rix-mobile-content {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 100vh;
+  }
+}
+
+/* ===== RESPONSIVE GRID SYSTEM ===== */
+
+.rix-grid {
+  display: grid;
+  gap: var(--mobile-touch-spacing);
+  width: 100%;
+}
+
+/* Mobile grid (single column) */
+.rix-grid--mobile {
+  grid-template-columns: 1fr;
+}
+
+/* Tablet grid (two columns) */
+@media screen and (min-width: 768px) {
+  .rix-grid--tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+/* Desktop grid (three columns) */
+@media screen and (min-width: 1024px) {
+  .rix-grid--desktop {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+/* ===== RESPONSIVE FLEX UTILITIES ===== */
+
+.rix-flex-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mobile-touch-spacing);
+}
+
+@media screen and (min-width: 768px) {
+  .rix-flex-mobile {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}
+
+/* ===== MOBILE TYPOGRAPHY SYSTEM ===== */
+
+/* Mobile-optimized headings */
+h1, .mobile-h1 {
+  font-size: calc(var(--text-3xl) * var(--mobile-heading-scale));
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+}
+
+h2, .mobile-h2 {
+  font-size: calc(var(--text-2xl) * var(--mobile-heading-scale));
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-3);
+}
+
+h3, .mobile-h3 {
+  font-size: calc(var(--text-xl) * var(--mobile-heading-scale));
+  line-height: var(--leading-snug);
+  margin-bottom: var(--space-3);
+}
+
+/* Tablet typography enhancements */
+@media screen and (min-width: 768px) {
+  h1, .mobile-h1 {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-6);
+  }
+  
+  h2, .mobile-h2 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-4);
+  }
+  
+  h3, .mobile-h3 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* ===== RESPONSIVE SPACING UTILITIES ===== */
+
+/* Mobile spacing */
+.mobile-p-sm { padding: var(--space-2); }
+.mobile-p-md { padding: var(--space-4); }
+.mobile-p-lg { padding: var(--space-6); }
+
+.mobile-m-sm { margin: var(--space-2); }
+.mobile-m-md { margin: var(--space-4); }
+.mobile-m-lg { margin: var(--space-6); }
+
+/* Responsive spacing that adapts */
+.mobile-section-spacing {
+  padding: var(--mobile-section-spacing) 0;
+}
+
+/* ===== MOBILE VISIBILITY UTILITIES ===== */
+
+/* Show only on mobile */
+.mobile-show {
+  display: block;
+}
+
+.tablet-hide {
+  display: block;
+}
+
+.desktop-hide {
+  display: block;
+}
+
+/* Hide on mobile, show on tablet+ */
+@media screen and (min-width: 768px) {
+  .mobile-hide {
+    display: none;
+  }
+  
+  .tablet-show {
+    display: block;
+  }
+  
+  .tablet-hide {
+    display: none;
+  }
+}
+
+/* Hide on tablet, show on desktop */
+@media screen and (min-width: 1024px) {
+  .tablet-hide {
+    display: none;
+  }
+  
+  .desktop-show {
+    display: block;
+  }
+  
+  .desktop-hide {
+    display: none;
+  }
+}
+
+/* ===== MOBILE INTERACTION ZONES ===== */
+
+/* Comfortable touch targets */
+.mobile-touch-target {
+  min-height: var(--mobile-interaction-zone);
+  min-width: var(--mobile-interaction-zone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+/* Extended touch areas for small elements */
+.mobile-touch-extended {
+  position: relative;
+}
+
+.mobile-touch-extended::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--mobile-interaction-zone);
+  height: var(--mobile-interaction-zone);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+/* ===== MOBILE SAFE AREAS ===== */
+
+/* Support for notched devices */
+.mobile-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.mobile-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mobile-safe-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.mobile-safe-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.mobile-safe-all {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+/* ===== MOBILE PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Hardware acceleration for mobile animations */
+.mobile-gpu-optimized {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Mobile scroll optimization */
+.mobile-scroll-optimized {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Prevent mobile input zoom */
+input, select, textarea {
+  font-size: max(16px, var(--text-base)); /* Prevent zoom on iOS */
+}
+
+/* ===== MOBILE DARK MODE OPTIMIZATIONS ===== */
+
+@media (prefers-color-scheme: dark) {
+  /* Enhanced contrast for mobile screens */
+  :root {
+    --mobile-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  
+  .mobile-text-enhanced {
+    text-shadow: var(--mobile-text-shadow);
+  }
+}
+
+/* ===== MOBILE REDUCED MOTION SUPPORT ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable animations on mobile for accessibility */
+  .mobile-gpu-optimized {
+    transform: none;
+    will-change: auto;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== MOBILE PRINT STYLES ===== */
+
+@media print {
+  /* Hide mobile navigation on print */
+  .mobile-navigation,
+  .mobile-bottom-nav,
+  .floating-ai-sphere-container {
+    display: none !important;
+  }
+  
+  /* Optimize content for print */
+  .rix-mobile-content {
+    padding: 0 !important;
+    min-height: auto;
+  }
+  
+  /* Reset mobile-specific styles for print */
+  .mobile-touch-target {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* ===== MOBILE LANDSCAPE OPTIMIZATIONS ===== */
+
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  /* Reduce vertical spacing in landscape */
+  .mobile-section-spacing {
+    padding: var(--space-4) 0;
+  }
+  
+  /* Optimize mobile navigation for landscape */
+  :root {
+    --mobile-nav-height: 48px;
+    --mobile-bottom-nav-height: 56px;
+  }
+  
+  /* Compact typography in landscape */
+  h1, .mobile-h1 {
+    font-size: calc(var(--text-2xl) * var(--mobile-heading-scale));
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* ===== HIGH DPI DISPLAY OPTIMIZATIONS ===== */
+
+@media screen and (-webkit-min-device-pixel-ratio: 2), 
+       screen and (min-resolution: 192dpi) {
+  /* Sharper borders on high DPI displays */
+  .mobile-sharp-borders {
+    border-width: 0.5px;
+  }
+  
+  /* Optimized shadows for retina displays */
+  .mobile-retina-shadow {
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* ===== MOBILE ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .mobile-high-contrast {
+    border: 2px solid currentColor;
+    background: var(--background-dark);
+    color: var(--text-primary);
+  }
+}
+
+/* Focus management for mobile */
+.mobile-focus-visible:focus-visible {
+  outline: 3px solid var(--primary-blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Screen reader optimizations */
+.mobile-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== RESPONSIVE DEBUGGING (Development Only) ===== */
+
+/* Visual breakpoint indicators (remove in production) */
+.debug-breakpoints::before {
+  content: 'Mobile';
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: var(--primary-blue);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  z-index: 9999;
+}
+
+@media screen and (min-width: 768px) {
+  .debug-breakpoints::before {
+    content: 'Tablet';
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .debug-breakpoints::before {
+    content: 'Desktop';
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .debug-breakpoints::before {
+    content: 'Wide';
+  }
+}

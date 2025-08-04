@@ -1,0 +1,687 @@
+/* /01-implementation/ai-sphere/sphere-animations.css */
+/* Animation styles for the floating AI sphere with hardware acceleration */
+/* Provides smooth 60fps animations, pulsing glow effects, and responsive interactions */
+/* RELEVANT FILES: FloatingAISphere.tsx, AIBubbleInterface.tsx, VoiceInput.tsx, tech-stack-config.md */
+
+/* ===== FLOATING AI SPHERE CONTAINER ===== */
+.floating-ai-sphere-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  
+  /* Ensure sphere doesn't interfere with sidebar */
+  transition: transform 200ms ease-out;
+  will-change: transform;
+}
+
+/* Adjust position when sidebar is expanded on smaller screens */
+@media (max-width: 1280px) {
+  .floating-ai-sphere-container {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-ai-sphere-container {
+    bottom: 80px; /* Above mobile bottom navigation */
+    right: 16px;
+  }
+}
+
+/* Container when interface is open */
+.floating-ai-sphere-container--open {
+  transform: scale(1.02);
+}
+
+/* ===== MAIN SPHERE BUTTON ===== */
+.floating-ai-sphere {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  background: transparent;
+  
+  /* Hardware acceleration for smooth animations */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: all 200ms ease-out;
+  
+  /* Ensure minimum touch target size */
+  min-width: 44px;
+  min-height: 44px;
+  
+  /* Focus styles for accessibility */
+  &:focus-visible {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 4px;
+  }
+}
+
+/* Sphere background with gradient */
+.floating-ai-sphere__background {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  box-shadow: 
+    0 4px 20px rgba(0, 102, 255, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  transition: all 200ms ease-out;
+  transform: translateZ(0);
+}
+
+/* Sphere icon container */
+.floating-ai-sphere__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 2;
+  
+  transition: transform 200ms ease-out;
+}
+
+/* Pulsing ring animation */
+.floating-ai-sphere__pulse-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-blue);
+  opacity: 0;
+  
+  transform: scale(0.8);
+  transition: all 200ms ease-out;
+}
+
+/* ===== SPHERE STATES ===== */
+
+/* Hover state */
+.floating-ai-sphere:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.floating-ai-sphere:hover .floating-ai-sphere__background {
+  box-shadow: 
+    0 8px 32px rgba(0, 102, 255, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Active/pressed state */
+.floating-ai-sphere:active {
+  transform: translateY(0) scale(0.98);
+  transition: transform 100ms ease-out;
+}
+
+/* Listening state - enhanced pulsing */
+.floating-ai-sphere--listening {
+  animation: sphere-pulse 1.5s ease-in-out infinite;
+}
+
+.floating-ai-sphere--listening .floating-ai-sphere__background {
+  background: linear-gradient(135deg, #ff4444 0%, #cc3333 100%);
+  box-shadow: 
+    0 6px 24px rgba(255, 68, 68, 0.4),
+    0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+.floating-ai-sphere--listening .floating-ai-sphere__pulse-ring {
+  opacity: 0.6;
+  transform: scale(1.2);
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+/* Processing state - spinning animation */
+.floating-ai-sphere--processing {
+  animation: sphere-process 2s linear infinite;
+}
+
+.floating-ai-sphere--processing .floating-ai-sphere__background {
+  background: linear-gradient(135deg, #ffaa00 0%, #cc8800 100%);
+  box-shadow: 
+    0 6px 24px rgba(255, 170, 0, 0.4),
+    0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Disabled state */
+.floating-ai-sphere--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.floating-ai-sphere--disabled .floating-ai-sphere__background {
+  background: var(--border-color);
+  box-shadow: none;
+}
+
+/* ===== PROCESSING SPINNER ===== */
+.processing-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ===== AI BUBBLE INTERFACE ===== */
+.ai-bubble-interface {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 10px 20px rgba(0, 0, 0, 0.1);
+  
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Expanded state */
+.ai-bubble-interface--expanded {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Processing state */
+.ai-bubble-interface--processing {
+  pointer-events: none;
+}
+
+/* Interface header */
+.ai-bubble-interface__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ai-bubble-interface__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-bubble-interface__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.ai-bubble-interface__close:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Quick actions section */
+.ai-bubble-interface__actions {
+  padding: 16px;
+}
+
+.ai-bubble-interface__actions-title {
+  margin-bottom: 12px;
+}
+
+.ai-bubble-interface__actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* Quick action button */
+.ai-bubble-action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  
+  min-height: 64px;
+  transition: all 150ms ease-out;
+}
+
+.ai-bubble-action-button:hover {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.ai-bubble-action-button:active {
+  transform: translateY(0);
+  transition: transform 100ms ease-out;
+}
+
+/* Text input section */
+.ai-bubble-interface__input {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ai-bubble-interface__form {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-bubble-interface__input-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.ai-bubble-interface__text-input {
+  flex: 1;
+  height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--background-dark);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 150ms ease-out;
+}
+
+.ai-bubble-interface__text-input:focus {
+  border-color: var(--primary-blue);
+}
+
+.ai-bubble-interface__text-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.ai-bubble-interface__send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-blue);
+  color: white;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.ai-bubble-interface__send-button:hover:not(:disabled) {
+  background: var(--primary-blue-dark);
+  transform: scale(1.05);
+}
+
+.ai-bubble-interface__send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Voice hint */
+.ai-bubble-interface__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--border-color);
+  border-radius: 0 0 16px 16px;
+}
+
+/* Processing indicator */
+.ai-bubble-interface__processing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.processing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.processing-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+  animation: processing-dot 1.4s ease-in-out infinite both;
+}
+
+.processing-dot:nth-child(1) { animation-delay: -0.32s; }
+.processing-dot:nth-child(2) { animation-delay: -0.16s; }
+.processing-dot:nth-child(3) { animation-delay: 0s; }
+
+/* ===== VOICE INPUT STYLES ===== */
+.voice-input {
+  position: absolute;
+  bottom: 80px;
+  right: 80px;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 200ms ease-out;
+  pointer-events: none;
+}
+
+.voice-input--active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.voice-input--error {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Voice button */
+.voice-input__button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  
+  transition: all 200ms ease-out;
+  transform: translateZ(0);
+}
+
+.voice-input__button-background {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  transition: all 200ms ease-out;
+}
+
+.voice-input__button--active .voice-input__button-background {
+  background: #ff4444;
+  border-color: #ff4444;
+  box-shadow: 0 4px 16px rgba(255, 68, 68, 0.3);
+}
+
+.voice-input__button-icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-primary);
+  transition: color 200ms ease-out;
+}
+
+.voice-input__button--active .voice-input__button-icon {
+  color: white;
+}
+
+/* Voice visualizer */
+.voice-input__visualizer {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  height: 16px;
+}
+
+.voice-wave {
+  width: 2px;
+  background: var(--primary-blue);
+  border-radius: 1px;
+  animation: voice-wave 1.5s ease-in-out infinite;
+}
+
+.voice-wave:nth-child(1) { animation-delay: 0s; }
+.voice-wave:nth-child(2) { animation-delay: 0.1s; }
+.voice-wave:nth-child(3) { animation-delay: 0.2s; }
+.voice-wave:nth-child(4) { animation-delay: 0.3s; }
+.voice-wave:nth-child(5) { animation-delay: 0.4s; }
+
+/* Voice transcript */
+.voice-input__transcript {
+  max-width: 200px;
+  padding: 8px 12px;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.voice-input__transcript-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+}
+
+/* Voice status */
+.voice-input__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.voice-input__status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: all 200ms ease-out;
+}
+
+.voice-input__status-indicator--active {
+  background: #ff4444;
+  animation: status-pulse 1s ease-in-out infinite;
+}
+
+/* Voice error */
+.voice-input__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  max-width: 200px;
+}
+
+/* ===== KEYFRAME ANIMATIONS ===== */
+
+/* Sphere pulsing animation */
+@keyframes sphere-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Sphere processing animation */
+@keyframes sphere-process {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse ring animation */
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Processing dots animation */
+@keyframes processing-dot {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Voice wave animation */
+@keyframes voice-wave {
+  0%, 100% {
+    height: 4px;
+  }
+  50% {
+    height: 16px;
+  }
+}
+
+/* Status pulse animation */
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+@media (max-width: 768px) {
+  .ai-bubble-interface {
+    width: 280px;
+    bottom: 60px;
+  }
+  
+  .ai-bubble-interface__actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .voice-input {
+    bottom: 60px;
+    right: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-ai-sphere {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .ai-bubble-interface {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 70px;
+  }
+  
+  .voice-input {
+    bottom: 70px;
+    right: 70px;
+  }
+  
+  .voice-input__button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-ai-sphere,
+  .ai-bubble-interface,
+  .voice-input,
+  .processing-spinner,
+  .voice-wave,
+  .processing-dot {
+    animation: none;
+    transition: none;
+  }
+  
+  .floating-ai-sphere:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .floating-ai-sphere__background {
+    border: 2px solid currentColor;
+  }
+  
+  .ai-bubble-interface {
+    border-width: 2px;
+  }
+  
+  .ai-bubble-action-button {
+    border-width: 2px;
+  }
+}

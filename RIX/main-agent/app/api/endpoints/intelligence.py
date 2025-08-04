@@ -1,499 +1,472 @@
-"""
-Intelligence endpoints for Phase 5 AI features
-Handles routing to N8N MCP endpoints for routine coaching, project intelligence, and calendar optimization
-"""
+# /Users/benediktthomas/RIX Personal Agent/RIX/main-agent/app/api/endpoints/intelligence.py
+# Intelligence endpoints for RIX Personal Agent
+# Provides intelligence services and MCP routing capabilities
+# RELEVANT FILES: services/intelligence/*, services/mcp_router.py, models/schemas.py
 
-import asyncio
-import time
+from fastapi import APIRouter, HTTPException, Depends, Query, Path
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from datetime import datetime
+from datetime import datetime, date, timedelta
+import uuid
+import logging
 
-from app.core.logging import get_logger
-from app.models.auth import AuthenticatedUser
-from app.models.chat import WorkflowType
-from app.models.n8n import N8NWorkflowRequest
+from app.models.schemas import (
+    # Intelligence response models
+    RoutineCoachingResponse, ProjectHealthResponse, CalendarOptimizationResponse,
+    # Standard response models
+    APIResponse, IntelligenceResponse
+)
 from app.middleware.auth import get_current_user
-from app.services.context_manager import context_manager
-from app.services.n8n_client import n8n_client
-from app.services.websocket_manager import websocket_manager
+from app.services.mcp_router import mcp_router
+from app.services.intelligence.routine_coach import routine_coaching_service
+from app.services.intelligence.project_health import project_health_service
+from app.services.intelligence.calendar_optimizer import calendar_optimizer_service
+from app.services.intelligence.behavioral_analytics import behavioral_analytics_service
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/routine-coaching")
+# ==================== ROUTINE COACHING INTELLIGENCE ====================
+
+@router.post("/routine-coaching", response_model=RoutineCoachingResponse)
 async def routine_coaching_analysis(
     request: Dict[str, Any],
-    background_tasks: BackgroundTasks,
-    current_user: AuthenticatedUser = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user routines and provide AI-powered coaching suggestions
-    Routes to N8N MCP endpoint for routine optimization
+    Routes via MCP to Sub-Agent or direct intelligence service
     """
-    logger.info(
-        "Processing routine coaching request",
-        user_id=current_user.user_id,
-        message_length=len(request.get("message", ""))
-    )
-    
-    start_time = time.time()
-    
     try:
-        # Extract message and context from request
-        message = request.get("message", "")
-        context = request.get("context", {})
-        conversation_id = request.get("conversation_id")
+        routine_id = request.get("routine_id")
+        if not routine_id:
+            raise HTTPException(status_code=400, detail="routine_id is required")
         
-        if not message:
-            raise HTTPException(status_code=400, detail="Message is required")
-        
-        # Prepare comprehensive context for N8N MCP endpoint
-        routine_context = await context_manager.prepare_routine_coaching_context(
-            current_user.user_id, message
+        # Route via MCP router (handles both direct API and future Sub-Agent routing)
+        response = await mcp_router.route_request(
+            user_id=current_user["user_id"],
+            sub_agent_type="routine_coaching",
+            action="get_insights",
+            payload={
+                "routine_id": routine_id,
+                "recent_completion": request.get("recent_completion")
+            },
+            context=request.get("context", {})
         )
         
-        # Create N8N workflow request for routine coaching
-        n8n_request = N8NWorkflowRequest(
-            workflow_type=WorkflowType.ROUTINE_COACHING,
-            user_id=current_user.user_id,
-            conversation_id=conversation_id,
-            input_data={
-                "user_input": message,
-                "routine_context": routine_context,
-                "coaching_request": {
-                    "type": "routine_optimization",
-                    "user_id": current_user.user_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "preferences": routine_context.get("preferences", {})
-                }
-            },
-            metadata={
-                "endpoint": "routine-coaching",
-                "context_prepared": True,
-                "routine_count": len(routine_context.get("routines", [])),
-                "request_timestamp": datetime.utcnow().isoformat()
-            }
-        )
+        if not response.get("success"):
+            raise HTTPException(status_code=500, detail=response.get("error", "Routine coaching failed"))
         
-        # Send processing notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_processing_status,
-                current_user.user_id,
-                conversation_id,
-                "analyzing_routines",
-                {"feature": "routine_coaching", "context_prepared": True}
-            )
+        return response["data"]
         
-        # Execute N8N workflow for routine coaching
-        n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
-        processing_time = time.time() - start_time
-        
-        # Prepare response with coaching insights
-        response = {
-            "success": True,
-            "coaching_insights": n8n_response.response,
-            "routine_analysis": {
-                "routines_analyzed": len(routine_context.get("routines", [])),
-                "completion_rate": routine_context.get("statistics", {}).get("average_completion_rate", 0),
-                "current_streak": routine_context.get("statistics", {}).get("streak_days", 0),
-                "improvement_trend": routine_context.get("statistics", {}).get("improvement_trend", "stable")
-            },
-            "recommendations": {
-                "focus_areas": routine_context.get("analysis_request", {}).get("focus_areas", []),
-                "coaching_type": "supportive",
-                "actionable_steps": True  # Indicates N8N response includes actionable steps
-            },
-            "processing_info": {
-                "workflow_type": n8n_response.workflow_type.value,
-                "processing_time": processing_time,
-                "execution_id": n8n_response.execution_id,
-                "confidence": 0.9  # High confidence for routine coaching
-            },
-            "metadata": {
-                "timestamp": datetime.utcnow().isoformat(),
-                "context_quality": "high" if not routine_context.get("error") else "limited",
-                "user_id": current_user.user_id
-            }
-        }
-        
-        logger.info(
-            "Routine coaching analysis completed",
-            user_id=current_user.user_id,
-            processing_time=processing_time,
-            routines_count=len(routine_context.get("routines", []))
-        )
-        
-        return response
-        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(
-            "Routine coaching analysis failed",
-            user_id=current_user.user_id,
-            error=str(e)
-        )
-        
-        # Send error notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_error_message,
-                current_user.user_id,
-                f"Routine coaching analysis failed: {str(e)}",
-                conversation_id
-            )
-        
-        raise HTTPException(
-            status_code=500,
-            detail=f"Routine coaching analysis failed: {str(e)}"
-        )
+        logger.error(f"Routine coaching analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/project-intelligence")
+@router.get("/routine-coaching/{routine_id}", response_model=RoutineCoachingResponse)
+async def get_routine_coaching(
+    routine_id: str = Path(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get coaching insights for a specific routine"""
+    try:
+        insights = await routine_coaching_service.get_coaching_insights(
+            user_id=current_user["user_id"],
+            routine_id=routine_id
+        )
+        return insights
+    except Exception as e:
+        logger.error(f"Error getting routine coaching: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== PROJECT INTELLIGENCE ====================
+
+@router.post("/project-intelligence", response_model=ProjectHealthResponse)
 async def project_intelligence_analysis(
     request: Dict[str, Any],
-    background_tasks: BackgroundTasks,
-    current_user: AuthenticatedUser = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user projects and calculate AI health scores with insights
-    Routes to N8N MCP endpoint for project intelligence
+    Routes via MCP to Sub-Agent or direct intelligence service
     """
-    logger.info(
-        "Processing project intelligence request",
-        user_id=current_user.user_id,
-        message_length=len(request.get("message", ""))
-    )
-    
-    start_time = time.time()
-    
     try:
-        # Extract message and context from request
-        message = request.get("message", "")
-        context = request.get("context", {})
-        conversation_id = request.get("conversation_id")
+        project_id = request.get("project_id")
+        if not project_id:
+            raise HTTPException(status_code=400, detail="project_id is required")
         
-        if not message:
-            raise HTTPException(status_code=400, detail="Message is required")
-        
-        # Prepare comprehensive context for N8N MCP endpoint
-        project_context = await context_manager.prepare_project_intelligence_context(
-            current_user.user_id, message
+        # Route via MCP router
+        response = await mcp_router.route_request(
+            user_id=current_user["user_id"],
+            sub_agent_type="project_intelligence",
+            action="assess_health",
+            payload={"project_id": project_id},
+            context=request.get("context", {})
         )
         
-        # Create N8N workflow request for project intelligence
-        n8n_request = N8NWorkflowRequest(
-            workflow_type=WorkflowType.PROJECT_INTELLIGENCE,
-            user_id=current_user.user_id,
-            conversation_id=conversation_id,
-            input_data={
-                "user_input": message,
-                "project_context": project_context,
-                "intelligence_request": {
-                    "type": "project_analysis",
-                    "user_id": current_user.user_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "analysis_depth": "comprehensive",
-                    "include_health_scores": True,
-                    "include_recommendations": True
-                }
-            },
-            metadata={
-                "endpoint": "project-intelligence",
-                "context_prepared": True,
-                "project_count": len(project_context.get("projects", [])),
-                "target_project": project_context.get("target_project", {}).get("id") if project_context.get("target_project") else None,
-                "request_timestamp": datetime.utcnow().isoformat()
-            }
-        )
+        if not response.get("success"):
+            raise HTTPException(status_code=500, detail=response.get("error", "Project intelligence failed"))
         
-        # Send processing notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_processing_status,
-                current_user.user_id,
-                conversation_id,
-                "analyzing_projects",
-                {"feature": "project_intelligence", "context_prepared": True}
-            )
+        return response["data"]
         
-        # Execute N8N workflow for project intelligence
-        n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
-        processing_time = time.time() - start_time
-        
-        # Prepare response with project intelligence insights
-        response = {
-            "success": True,
-            "intelligence_insights": n8n_response.response,
-            "project_analysis": {
-                "projects_analyzed": len(project_context.get("projects", [])),
-                "average_health_score": project_context.get("metrics", {}).get("average_health_score", 0),
-                "active_projects": project_context.get("metrics", {}).get("active_projects", 0),
-                "projects_at_risk": project_context.get("metrics", {}).get("projects_at_risk", 0),
-                "target_project": project_context.get("target_project", {}).get("name") if project_context.get("target_project") else None
-            },
-            "health_scores": {
-                "calculation_method": "ai_powered",
-                "factors_considered": ["progress", "timeline", "resource_allocation", "risk_assessment"],
-                "score_range": "0-100",
-                "interpretation": {
-                    "90-100": "Excellent",
-                    "70-89": "Good", 
-                    "50-69": "Fair",
-                    "0-49": "Needs Attention"
-                }
-            },
-            "recommendations": {
-                "focus_areas": project_context.get("analysis_request", {}).get("focus", []),
-                "actionable_insights": True,
-                "priority_actions": True  # Indicates N8N response includes priority actions
-            },
-            "processing_info": {
-                "workflow_type": n8n_response.workflow_type.value,
-                "processing_time": processing_time,
-                "execution_id": n8n_response.execution_id,
-                "confidence": 0.92  # High confidence for project intelligence
-            },
-            "metadata": {
-                "timestamp": datetime.utcnow().isoformat(),
-                "context_quality": "high" if not project_context.get("error") else "limited",
-                "user_id": current_user.user_id
-            }
-        }
-        
-        logger.info(
-            "Project intelligence analysis completed",
-            user_id=current_user.user_id,
-            processing_time=processing_time,
-            projects_count=len(project_context.get("projects", []))
-        )
-        
-        return response
-        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(
-            "Project intelligence analysis failed",
-            user_id=current_user.user_id,
-            error=str(e)
-        )
-        
-        # Send error notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_error_message,
-                current_user.user_id,
-                f"Project intelligence analysis failed: {str(e)}",
-                conversation_id
-            )
-        
-        raise HTTPException(
-            status_code=500,
-            detail=f"Project intelligence analysis failed: {str(e)}"
-        )
+        logger.error(f"Project intelligence analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/calendar-optimization")
+@router.get("/project-intelligence/{project_id}", response_model=ProjectHealthResponse)
+async def get_project_intelligence(
+    project_id: str = Path(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get intelligence analysis for a specific project"""
+    try:
+        assessment = await project_health_service.assess_project_health(
+            user_id=current_user["user_id"],
+            project_id=project_id
+        )
+        return assessment
+    except Exception as e:
+        logger.error(f"Error getting project intelligence: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== CALENDAR OPTIMIZATION ====================
+
+@router.post("/calendar-optimization", response_model=CalendarOptimizationResponse)
 async def calendar_optimization_analysis(
     request: Dict[str, Any],
-    background_tasks: BackgroundTasks,
-    current_user: AuthenticatedUser = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Analyze user calendar and provide intelligent scheduling optimization
-    Routes to N8N MCP endpoint for calendar optimization
+    Routes via MCP to Sub-Agent or direct intelligence service
     """
-    logger.info(
-        "Processing calendar optimization request",
-        user_id=current_user.user_id,
-        message_length=len(request.get("message", ""))
-    )
-    
-    start_time = time.time()
-    
     try:
-        # Extract message and context from request
-        message = request.get("message", "")
-        context = request.get("context", {})
-        conversation_id = request.get("conversation_id")
+        target_date_str = request.get("target_date")
+        if not target_date_str:
+            raise HTTPException(status_code=400, detail="target_date is required")
         
-        if not message:
-            raise HTTPException(status_code=400, detail="Message is required")
+        # Parse target_date
+        if isinstance(target_date_str, str):
+            target_date = datetime.fromisoformat(target_date_str).date()
+        else:
+            target_date = target_date_str
         
-        # Prepare comprehensive context for N8N MCP endpoint
-        calendar_context = await context_manager.prepare_calendar_optimization_context(
-            current_user.user_id, message
+        # Route via MCP router
+        response = await mcp_router.route_request(
+            user_id=current_user["user_id"],
+            sub_agent_type="calendar_optimization",
+            action="optimize_schedule",
+            payload={
+                "target_date": target_date.isoformat(),
+                "preferences": request.get("preferences", {})
+            },
+            context=request.get("context", {})
         )
         
-        # Create N8N workflow request for calendar optimization
-        n8n_request = N8NWorkflowRequest(
-            workflow_type=WorkflowType.CALENDAR_OPTIMIZATION,
-            user_id=current_user.user_id,
-            conversation_id=conversation_id,
-            input_data={
-                "user_input": message,
-                "calendar_context": calendar_context,
-                "optimization_request": {
-                    "type": "schedule_optimization",
-                    "user_id": current_user.user_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "optimization_goals": ["productivity", "efficiency", "work_life_balance"],
-                    "include_suggestions": True,
-                    "include_time_blocks": True
-                }
-            },
-            metadata={
-                "endpoint": "calendar-optimization",
-                "context_prepared": True,
-                "events_count": len(calendar_context.get("calendar_events", [])),
-                "time_blocks_count": len(calendar_context.get("time_blocks", [])),
-                "optimization_scope": calendar_context.get("optimization_request", {}).get("time_range", {}),
-                "request_timestamp": datetime.utcnow().isoformat()
-            }
-        )
+        if not response.get("success"):
+            raise HTTPException(status_code=500, detail=response.get("error", "Calendar optimization failed"))
         
-        # Send processing notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_processing_status,
-                current_user.user_id,
-                conversation_id,
-                "optimizing_calendar",
-                {"feature": "calendar_optimization", "context_prepared": True}
-            )
+        return response["data"]
         
-        # Execute N8N workflow for calendar optimization
-        n8n_response = await n8n_client.execute_workflow(n8n_request)
-        
-        processing_time = time.time() - start_time
-        
-        # Prepare response with calendar optimization insights
-        response = {
-            "success": True,
-            "optimization_insights": n8n_response.response,
-            "schedule_analysis": {
-                "events_analyzed": len(calendar_context.get("calendar_events", [])),
-                "time_blocks_analyzed": len(calendar_context.get("time_blocks", [])),
-                "meeting_density": calendar_context.get("patterns", {}).get("meeting_density", 0),
-                "schedule_efficiency": calendar_context.get("schedule_analysis", {}).get("schedule_efficiency", 0),
-                "productivity_windows": calendar_context.get("patterns", {}).get("productivity_peaks", [])
-            },
-            "optimization_scope": {
-                "time_range": calendar_context.get("optimization_request", {}).get("time_range", {}),
-                "focus_areas": calendar_context.get("optimization_request", {}).get("focus_areas", []),
-                "preferences": calendar_context.get("optimization_request", {}).get("preferences", {})
-            },
-            "recommendations": {
-                "scheduling_improvements": True,
-                "time_blocking_suggestions": True,
-                "productivity_optimizations": True,
-                "conflict_resolutions": len(calendar_context.get("patterns", {}).get("common_conflicts", []))
-            },
-            "processing_info": {
-                "workflow_type": n8n_response.workflow_type.value,
-                "processing_time": processing_time,
-                "execution_id": n8n_response.execution_id,
-                "confidence": 0.88  # High confidence for calendar optimization
-            },
-            "metadata": {
-                "timestamp": datetime.utcnow().isoformat(),
-                "context_quality": "high" if not calendar_context.get("error") else "limited",
-                "user_id": current_user.user_id
-            }
-        }
-        
-        logger.info(
-            "Calendar optimization analysis completed",
-            user_id=current_user.user_id,
-            processing_time=processing_time,
-            events_count=len(calendar_context.get("calendar_events", []))
-        )
-        
-        return response
-        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(
-            "Calendar optimization analysis failed",
-            user_id=current_user.user_id,
-            error=str(e)
-        )
-        
-        # Send error notification via WebSocket
-        if websocket_manager.is_user_connected(current_user.user_id):
-            background_tasks.add_task(
-                websocket_manager.send_error_message,
-                current_user.user_id,
-                f"Calendar optimization analysis failed: {str(e)}",
-                conversation_id
-            )
-        
-        raise HTTPException(
-            status_code=500,
-            detail=f"Calendar optimization analysis failed: {str(e)}"
-        )
+        logger.error(f"Calendar optimization analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.get("/calendar-optimization/{target_date}", response_model=CalendarOptimizationResponse)
+async def get_calendar_optimization(
+    target_date: date,
+    preferences: Optional[str] = Query(None, description="JSON string of preferences"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get calendar optimization for a specific date"""
+    try:
+        import json
+        prefs = json.loads(preferences) if preferences else {}
+        
+        optimization = await calendar_optimizer_service.optimize_schedule(
+            user_id=current_user["user_id"],
+            target_date=target_date,
+            preferences=prefs
+        )
+        return optimization
+    except Exception as e:
+        logger.error(f"Error getting calendar optimization: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== BEHAVIORAL ANALYTICS ====================
+
+@router.post("/behavioral-analytics")
+async def behavioral_analytics_analysis(
+    request: Dict[str, Any],
+    current_user: dict = Depends(get_current_user)  
+):
+    """
+    Generate comprehensive behavioral analysis across all systems
+    Routes via MCP to Sub-Agent or direct intelligence service
+    """
+    try:
+        analysis_period = request.get("analysis_period", "monthly")
+        
+        # Route via MCP router
+        response = await mcp_router.route_request(
+            user_id=current_user["user_id"],
+            sub_agent_type="behavioral_analytics",
+            action="generate_analysis",
+            payload={"analysis_period": analysis_period},
+            context=request.get("context", {})
+        )
+        
+        if not response.get("success"):
+            raise HTTPException(status_code=500, detail=response.get("error", "Behavioral analytics failed"))
+        
+        return response["data"]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Behavioral analytics analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/behavioral-analytics/generate")
+async def generate_behavioral_analysis(
+    analysis_period: str = Query("monthly", regex="^(weekly|monthly|quarterly)$"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Generate comprehensive behavioral analysis"""
+    try:
+        analysis = await behavioral_analytics_service.generate_comprehensive_analysis(
+            user_id=current_user["user_id"],
+            analysis_period=analysis_period
+        )
+        return analysis
+    except Exception as e:
+        logger.error(f"Error generating behavioral analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/behavioral-analytics/correlations")
+async def get_productivity_correlations(
+    days: int = Query(30, ge=7, le=90),
+    current_user: dict = Depends(get_current_user)
+):
+    """Analyze productivity correlations across different systems"""
+    try:
+        correlations = await behavioral_analytics_service.analyze_productivity_correlations(
+            user_id=current_user["user_id"],
+            days=days
+        )
+        return correlations
+    except Exception as e:
+        logger.error(f"Error analyzing productivity correlations: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== INTELLIGENCE SYSTEM STATUS ====================
 
 @router.get("/features/status")
 async def intelligence_features_status(
-    current_user: AuthenticatedUser = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
-    """
-    Get status of Phase 5 intelligence features
-    """
-    logger.info("Getting intelligence features status", user_id=current_user.user_id)
-    
+    """Get status of intelligence features and MCP routing"""
     try:
-        # Check N8N MCP endpoint availability
-        n8n_status = await n8n_client.get_workflow_status()
+        # Get MCP router health
+        mcp_health = await mcp_router.health_check()
         
-        # Get user data availability
-        routines_context = await context_manager.prepare_routine_coaching_context(current_user.user_id, "status check")
-        projects_context = await context_manager.prepare_project_intelligence_context(current_user.user_id, "status check")
-        calendar_context = await context_manager.prepare_calendar_optimization_context(current_user.user_id, "status check")
+        # Check data availability for each intelligence service
+        from app.core.database import database
+        
+        # Check routine data
+        routine_count = await database.execute(
+            "SELECT COUNT(*) FROM user_routines WHERE user_id = $1 AND is_active = true",
+            uuid.UUID(current_user["user_id"]),
+            fetch_val=True
+        )
+        
+        # Check project data
+        project_count = await database.execute(
+            "SELECT COUNT(*) FROM projects WHERE user_id = $1 AND status = 'active'",
+            uuid.UUID(current_user["user_id"]),
+            fetch_val=True
+        )
+        
+        # Check calendar data
+        calendar_count = await database.execute(
+            """
+            SELECT COUNT(*) FROM calendar_events 
+            WHERE user_id = $1 AND start_time >= NOW() - INTERVAL '30 days'
+            """,
+            uuid.UUID(current_user["user_id"]),
+            fetch_val=True
+        )
+        
+        # Check analytics data
+        analytics_count = await database.execute(
+            "SELECT COUNT(*) FROM behavioral_analytics WHERE user_id = $1",
+            uuid.UUID(current_user["user_id"]),
+            fetch_val=True
+        )
         
         return {
             "intelligence_features": {
                 "routine_coaching": {
                     "available": True,
-                    "mcp_endpoint": "/mcp/routine-coaching",
-                    "data_available": len(routines_context.get("routines", [])) > 0,
-                    "routines_count": len(routines_context.get("routines", [])),
-                    "features": ["habit_optimization", "streak_analysis", "coaching_suggestions"]
+                    "service_type": mcp_health["mode"],
+                    "data_available": routine_count > 0,
+                    "data_count": routine_count,
+                    "features": ["habit_optimization", "streak_analysis", "coaching_suggestions", "pattern_recognition"]
                 },
                 "project_intelligence": {
                     "available": True,
-                    "mcp_endpoint": "/mcp/project-intelligence",
-                    "data_available": len(projects_context.get("projects", [])) > 0,
-                    "projects_count": len(projects_context.get("projects", [])),
-                    "features": ["health_score_calculation", "risk_analysis", "progress_insights"]
+                    "service_type": mcp_health["mode"],
+                    "data_available": project_count > 0,
+                    "data_count": project_count,
+                    "features": ["health_score_calculation", "risk_analysis", "progress_insights", "completion_prediction"]
                 },
                 "calendar_optimization": {
                     "available": True,
-                    "mcp_endpoint": "/mcp/calendar-optimization",
-                    "data_available": len(calendar_context.get("calendar_events", [])) > 0,
-                    "events_count": len(calendar_context.get("calendar_events", [])),
-                    "features": ["schedule_optimization", "time_blocking", "productivity_analysis"]
+                    "service_type": mcp_health["mode"],
+                    "data_available": calendar_count > 0,
+                    "data_count": calendar_count,
+                    "features": ["schedule_optimization", "conflict_detection", "productivity_analysis", "time_blocking"]
+                },
+                "behavioral_analytics": {
+                    "available": True,
+                    "service_type": mcp_health["mode"],
+                    "data_available": analytics_count > 0 or (routine_count > 0 and project_count > 0),
+                    "analysis_count": analytics_count,
+                    "features": ["cross_system_correlations", "productivity_patterns", "behavioral_insights", "trend_analysis"]
                 }
             },
-            "n8n_status": {
-                "available": n8n_status.available,
-                "response_time": n8n_status.response_time,
-                "active_workflows": n8n_status.active_workflows
+            "mcp_system": mcp_health,
+            "database_integration": {
+                "status": "fully_integrated",
+                "tables_available": ["tasks", "projects", "calendar_events", "user_routines", "knowledge_entries", "user_goals", "behavioral_analytics"],
+                "vector_search": True,
+                "intelligence_ready": True
             },
             "system_info": {
-                "phase": "Phase 5 - Intelligence Features",
-                "rix_prd_compliant": True,
-                "pattern_based_routing": True,
-                "context_management": True,
-                "timestamp": datetime.utcnow().isoformat()
+                "version": "2.0.0",
+                "architecture": "RIX PRD Compliant",
+                "intelligence_mode": mcp_health["mode"],
+                "sub_agents_ready": mcp_health["mode"] == "mcp",
+                "timestamp": datetime.now().isoformat()
             }
         }
         
     except Exception as e:
-        logger.error("Failed to get intelligence features status", user_id=current_user.user_id, error=str(e))
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get status: {str(e)}"
+        logger.error(f"Failed to get intelligence features status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/switch-mode")
+async def switch_intelligence_mode(
+    request: Dict[str, Any],
+    current_user: dict = Depends(get_current_user)
+):
+    """Switch between direct API and MCP Sub-Agent modes"""
+    try:
+        new_mode = request.get("mode")
+        if new_mode not in ["direct", "mcp"]:
+            raise HTTPException(status_code=400, detail="Mode must be 'direct' or 'mcp'")
+        
+        success = await mcp_router.switch_mode(new_mode)
+        
+        return {
+            "success": success,
+            "previous_mode": "direct" if new_mode == "mcp" else "mcp",
+            "current_mode": new_mode,
+            "message": f"Intelligence routing switched to {new_mode} mode",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to switch intelligence mode: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== WEEKLY ANALYSIS ENDPOINTS ====================
+
+@router.get("/weekly-analysis")
+async def get_weekly_intelligence_analysis(
+    start_date: date = Query(..., description="Start date of the week (Monday)"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get comprehensive weekly intelligence analysis across all systems"""
+    try:
+        # Get calendar analysis
+        calendar_analysis = await calendar_optimizer_service.analyze_week_patterns(
+            user_id=current_user["user_id"],
+            start_date=start_date
         )
+        
+        # Get behavioral analytics for the week
+        behavioral_analysis = await behavioral_analytics_service.generate_comprehensive_analysis(
+            user_id=current_user["user_id"],
+            analysis_period="weekly"
+        )
+        
+        return {
+            "week_period": f"{start_date.isoformat()} to {(start_date + timedelta(days=6)).isoformat()}",
+            "calendar_intelligence": calendar_analysis,
+            "behavioral_intelligence": behavioral_analysis,
+            "combined_insights": {
+                "productivity_trends": "Generated from combined analysis",
+                "optimization_opportunities": "Cross-system recommendations",
+                "weekly_score": "Composite performance metric"
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating weekly intelligence analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== HEALTH CHECK ====================
+
+@router.get("/health")
+async def intelligence_health_check():
+    """Health check for intelligence services"""
+    try:
+        # Check MCP router
+        mcp_health = await mcp_router.health_check()
+        
+        # Check database connectivity
+        from app.core.database import database
+        db_health = await database.health_check()
+        
+        return {
+            "status": "healthy" if mcp_health["status"] == "healthy" and db_health["status"] == "healthy" else "degraded",
+            "services": {
+                "mcp_router": mcp_health,
+                "database": db_health,
+                "intelligence_services": {
+                    "routine_coaching": "available",
+                    "project_intelligence": "available", 
+                    "calendar_optimization": "available",
+                    "behavioral_analytics": "available"
+                }
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Intelligence health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }

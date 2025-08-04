@@ -1,0 +1,739 @@
+/* /01-implementation/color-refinement/component-styles/ai-sphere-styles.css */
+/* AI sphere component styles with refined color scheme and hardware-accelerated animations */
+/* Implements exact color values, 60fps animations, and accessibility-first design */
+/* RELEVANT FILES: color-system.css, sphere-animations.css, FloatingAISphere.tsx, updated-globals.css */
+
+/* ===== FLOATING AI SPHERE CONTAINER ===== */
+.floating-ai-sphere-container {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--ai-sphere-z-index);
+  
+  /* Smooth transitions */
+  transition: var(--transition-transform);
+  
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Responsive positioning */
+@media (max-width: 1280px) {
+  .floating-ai-sphere-container {
+    bottom: var(--space-5);
+    right: var(--space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-ai-sphere-container {
+    bottom: calc(var(--bottom-nav-height) + var(--space-4));
+    right: var(--space-4);
+  }
+}
+
+/* Container states */
+.floating-ai-sphere-container--open {
+  transform: scale(1.02) translateZ(0);
+}
+
+.floating-ai-sphere-container--hidden {
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  pointer-events: none;
+}
+
+/* ===== MAIN SPHERE BUTTON ===== */
+.floating-ai-sphere {
+  position: relative;
+  width: var(--ai-sphere-size);
+  height: var(--ai-sphere-size);
+  border: none;
+  border-radius: var(--sphere-radius);
+  cursor: pointer;
+  outline: none;
+  background: transparent;
+  
+  /* Touch targets */
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: var(--transition-normal);
+  
+  /* Ensure proper stacking */
+  isolation: isolate;
+}
+
+@media (max-width: 768px) {
+  .floating-ai-sphere {
+    width: var(--ai-sphere-size-mobile);
+    height: var(--ai-sphere-size-mobile);
+  }
+}
+
+.floating-ai-sphere:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: 4px;
+}
+
+/* Sphere background gradient */
+.floating-ai-sphere__background {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  box-shadow: 
+    var(--shadow-blue),
+    var(--shadow-md);
+  transition: var(--transition-normal);
+  transform: translateZ(0);
+}
+
+/* Icon container */
+.floating-ai-sphere__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 2;
+  transition: var(--transition-transform);
+}
+
+.floating-ai-sphere__icon svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+/* Pulsing ring effect */
+.floating-ai-sphere__pulse-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  border: 2px solid var(--primary-blue);
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: var(--transition-normal);
+  pointer-events: none;
+}
+
+/* ===== SPHERE STATES ===== */
+
+/* Hover state */
+.floating-ai-sphere:hover {
+  transform: translateY(-2px) scale(1.05) translateZ(0);
+}
+
+.floating-ai-sphere:hover .floating-ai-sphere__background {
+  box-shadow: 
+    var(--shadow-blue-lg),
+    var(--shadow-lg);
+}
+
+/* Active/pressed state */
+.floating-ai-sphere:active {
+  transform: translateY(0) scale(0.98) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* Listening state */
+.floating-ai-sphere--listening {
+  animation: sphere-pulse 1.5s ease-in-out infinite;
+}
+
+.floating-ai-sphere--listening .floating-ai-sphere__background {
+  background: linear-gradient(135deg, var(--error-color) 0%, #cc3333 100%);
+  box-shadow: 
+    0 6px 24px rgba(239, 68, 68, 0.4),
+    var(--shadow-md);
+}
+
+.floating-ai-sphere--listening .floating-ai-sphere__pulse-ring {
+  opacity: 0.6;
+  transform: scale(1.2) translateZ(0);
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+/* Processing state */
+.floating-ai-sphere--processing {
+  animation: sphere-process 2s linear infinite;
+}
+
+.floating-ai-sphere--processing .floating-ai-sphere__background {
+  background: linear-gradient(135deg, var(--warning-color) 0%, #cc8800 100%);
+  box-shadow: 
+    0 6px 24px rgba(251, 191, 36, 0.4),
+    var(--shadow-md);
+}
+
+/* Disabled state */
+.floating-ai-sphere--disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.floating-ai-sphere--disabled .floating-ai-sphere__background {
+  background: var(--border-color);
+  box-shadow: none;
+}
+
+/* ===== PROCESSING SPINNER ===== */
+.ai-sphere-spinner {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ===== AI BUBBLE INTERFACE ===== */
+.ai-bubble-interface {
+  position: absolute;
+  bottom: calc(100% + var(--space-4));
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - var(--space-8));
+  
+  /* Design system styling */
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--modal-radius);
+  box-shadow: var(--shadow-xl);
+  
+  /* Animation states */
+  opacity: 0;
+  transform: translateY(var(--space-5)) scale(0.95) translateZ(0);
+  transition: all var(--duration-slow) var(--ease-bounce);
+  
+  /* Backdrop blur effect */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  /* Ensure proper layering */
+  isolation: isolate;
+}
+
+@media (max-width: 768px) {
+  .ai-bubble-interface {
+    width: 280px;
+    bottom: calc(100% + var(--space-3));
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-bubble-interface {
+    width: calc(100vw - var(--space-6));
+    right: calc((100vw - (100vw - var(--space-6))) / 2 - var(--ai-sphere-size-mobile) / 2);
+    bottom: calc(100% + var(--space-4));
+  }
+}
+
+/* Expanded state */
+.ai-bubble-interface--expanded {
+  opacity: 1;
+  transform: translateY(0) scale(1) translateZ(0);
+}
+
+/* Processing state */
+.ai-bubble-interface--processing {
+  pointer-events: none;
+}
+
+.ai-bubble-interface--processing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-background);
+  border-radius: inherit;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+}
+
+/* ===== INTERFACE HEADER ===== */
+.ai-bubble-interface__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-background);
+  border-radius: var(--modal-radius) var(--modal-radius) 0 0;
+}
+
+.ai-bubble-interface__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.ai-bubble-interface__title-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--primary-blue);
+}
+
+.ai-bubble-interface__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  border: none;
+  border-radius: var(--button-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.ai-bubble-interface__close:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ai-bubble-interface__close:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: 2px;
+}
+
+/* ===== QUICK ACTIONS SECTION ===== */
+.ai-bubble-interface__actions {
+  padding: var(--space-4);
+}
+
+.ai-bubble-interface__actions-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.ai-bubble-interface__actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+@media (max-width: 768px) {
+  .ai-bubble-interface__actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Quick action buttons */
+.ai-bubble-action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-height: 64px;
+  transition: var(--transition-normal);
+  text-align: center;
+}
+
+.ai-bubble-action-button:hover {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+  transform: translateY(-1px) translateZ(0);
+}
+
+.ai-bubble-action-button:active {
+  transform: translateY(0) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.ai-bubble-action-button:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: 2px;
+}
+
+.ai-bubble-action-button__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+}
+
+.ai-bubble-action-button__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-tight);
+}
+
+/* ===== TEXT INPUT SECTION ===== */
+.ai-bubble-interface__input {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  background: var(--card-background);
+  border-radius: 0 0 var(--modal-radius) var(--modal-radius);
+}
+
+.ai-bubble-interface__form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ai-bubble-interface__input-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ai-bubble-interface__text-input {
+  flex: 1;
+  height: 36px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--button-radius);
+  background: var(--background-dark);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: var(--transition-colors);
+}
+
+.ai-bubble-interface__text-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-alpha-20);
+}
+
+.ai-bubble-interface__text-input::placeholder {
+  color: var(--text-muted);
+}
+
+.ai-bubble-interface__send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--button-radius);
+  background: var(--primary-blue);
+  color: white;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.ai-bubble-interface__send-button:hover:not(:disabled) {
+  background: var(--primary-blue-dark);
+  transform: scale(1.05) translateZ(0);
+}
+
+.ai-bubble-interface__send-button:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-bubble-interface__send-button:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: 2px;
+}
+
+/* ===== VOICE HINT ===== */
+.ai-bubble-interface__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--border-color);
+  border-radius: 0 0 var(--modal-radius) var(--modal-radius);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.ai-bubble-interface__hint-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  opacity: 0.7;
+}
+
+/* ===== PROCESSING INDICATOR ===== */
+.ai-bubble-interface__processing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  position: relative;
+  z-index: 11;
+}
+
+.ai-processing-dots {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.ai-processing-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+  animation: ai-processing-dot 1.4s ease-in-out infinite both;
+}
+
+.ai-processing-dot:nth-child(1) { animation-delay: -0.32s; }
+.ai-processing-dot:nth-child(2) { animation-delay: -0.16s; }
+.ai-processing-dot:nth-child(3) { animation-delay: 0s; }
+
+.ai-processing-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ===== VOICE INPUT OVERLAY ===== */
+.voice-input-overlay {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  right: calc(100% + var(--space-2));
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  
+  opacity: 0;
+  transform: translateX(var(--space-5)) translateZ(0);
+  transition: var(--transition-normal);
+  pointer-events: none;
+}
+
+.voice-input-overlay--active {
+  opacity: 1;
+  transform: translateX(0) translateZ(0);
+  pointer-events: auto;
+}
+
+.voice-input-overlay--error {
+  opacity: 1;
+  transform: translateX(0) translateZ(0);
+  pointer-events: auto;
+}
+
+/* Voice button */
+.voice-input-button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  transition: var(--transition-normal);
+  transform: translateZ(0);
+}
+
+.voice-input-button__background {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  transition: var(--transition-normal);
+}
+
+.voice-input-button--active .voice-input-button__background {
+  background: var(--error-color);
+  border-color: var(--error-color);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.voice-input-button__icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-primary);
+  transition: var(--transition-colors);
+}
+
+.voice-input-button--active .voice-input-button__icon {
+  color: white;
+}
+
+/* Voice visualizer */
+.voice-visualizer {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  height: 16px;
+}
+
+.voice-visualizer-bar {
+  width: 2px;
+  background: var(--primary-blue);
+  border-radius: 1px;
+  animation: voice-wave 1.5s ease-in-out infinite;
+}
+
+.voice-visualizer-bar:nth-child(1) { animation-delay: 0s; }
+.voice-visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
+.voice-visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
+.voice-visualizer-bar:nth-child(4) { animation-delay: 0.3s; }
+.voice-visualizer-bar:nth-child(5) { animation-delay: 0.4s; }
+
+/* Voice transcript */
+.voice-transcript {
+  max-width: 200px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.voice-transcript--error {
+  background: var(--error-background);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+/* ===== KEYFRAME ANIMATIONS ===== */
+
+/* Sphere pulsing animation */
+@keyframes sphere-pulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    transform: scale(1.05) translateZ(0);
+  }
+}
+
+/* Sphere processing animation */
+@keyframes sphere-process {
+  0% {
+    transform: rotate(0deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+/* Pulse ring animation */
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.8) translateZ(0);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.3) translateZ(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translateZ(0);
+  }
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Processing dots animation */
+@keyframes ai-processing-dot {
+  0%, 80%, 100% {
+    transform: scale(0.8) translateZ(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Voice wave animation */
+@keyframes voice-wave {
+  0%, 100% {
+    height: 4px;
+  }
+  50% {
+    height: 16px;
+  }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .floating-ai-sphere,
+  .ai-bubble-interface,
+  .voice-input-overlay,
+  .ai-sphere-spinner,
+  .voice-visualizer-bar,
+  .ai-processing-dot {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .floating-ai-sphere:hover,
+  .ai-bubble-action-button:hover,
+  .ai-bubble-interface__send-button:hover {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .floating-ai-sphere__background {
+    border: 2px solid currentColor;
+  }
+  
+  .ai-bubble-interface {
+    border-width: 2px;
+  }
+  
+  .ai-bubble-action-button {
+    border-width: 2px;
+  }
+  
+  .voice-input-button__background {
+    border-width: 3px;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.floating-ai-sphere,
+.ai-bubble-interface,
+.voice-input-overlay {
+  /* Enable hardware acceleration for smooth animations */
+  will-change: transform, opacity;
+}
+
+/* Clean up will-change after interactions complete */
+.floating-ai-sphere:not(:hover):not(.floating-ai-sphere--listening):not(.floating-ai-sphere--processing),
+.ai-bubble-interface:not(.ai-bubble-interface--expanded) {
+  will-change: auto;
+}

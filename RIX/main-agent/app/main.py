@@ -9,11 +9,12 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.logging import setup_logging
-from app.api.endpoints import auth, chat, n8n, health, intelligence
+from app.api.endpoints import auth, chat, n8n, health, intelligence, tasks, calendar, routines, knowledge, goals, analytics
 from app.api.webhooks import n8n_webhooks
 from app.middleware.auth import JWTAuthMiddleware
 from app.services.websocket_manager import WebSocketManager
-from app.services.database import database
+from app.core.database import database
+from app.services.mcp_router import mcp_router
 
 # Initialize logging
 setup_logging()
@@ -30,13 +31,14 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     await database.disconnect()
+    await mcp_router.close()
 
 
 # Create FastAPI application
 app = FastAPI(
     title="RIX Main Agent",
-    description="Intelligent middleware layer for RIX Personal Agent",
-    version="1.0.0",
+    description="Intelligent middleware layer for RIX Personal Agent with complete database integration",
+    version="2.0.0",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
     lifespan=lifespan,
@@ -61,11 +63,19 @@ app.add_middleware(JWTAuthMiddleware)
 
 # Include API routers
 app.include_router(health.router, prefix="/health", tags=["health"])
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(chat.router, prefix="/chat", tags=["chat"])
-app.include_router(n8n.router, prefix="/n8n", tags=["n8n"])
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(n8n.router, prefix="/api/n8n", tags=["n8n"])
 app.include_router(intelligence.router, prefix="/intelligence", tags=["intelligence"])
 app.include_router(n8n_webhooks.router, prefix="/webhooks", tags=["webhooks"])
+
+# Include new core API routers
+app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
+app.include_router(calendar.router, prefix="/api/calendar", tags=["calendar"])
+app.include_router(routines.router, prefix="/api/routines", tags=["routines"])
+app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])
+app.include_router(goals.router, prefix="/api/goals", tags=["goals"])
+app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 
 
 @app.websocket("/ws/chat/{user_id}")
@@ -88,5 +98,26 @@ async def root():
     return {
         "message": "RIX Main Agent is running",
         "version": "1.0.0",
-        "status": "healthy"
+        "status": "healthy",
+        "features": {
+            "database_integration": True,
+            "intelligence_services": True,
+            "mcp_router": True,
+            "sub_agents_ready": False,
+            "supported_workflows": [
+                "Task Intelligence Hub",
+                "Calendar Intelligence Hub", 
+                "Routine Intelligence Hub",
+                "Knowledge Intelligence Hub",
+                "Goal Intelligence Hub",
+                "Behavioral Analytics Engine",
+                "Daily Intelligence Hub"
+            ]
+        }
     }
+
+
+@app.get("/mcp/health")
+async def mcp_health():
+    """MCP router health endpoint"""
+    return await mcp_router.health_check()

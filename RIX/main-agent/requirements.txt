@@ -12,6 +12,11 @@ python-multipart==0.0.6
 asyncpg==0.29.0
 SQLAlchemy==2.0.23
 alembic==1.12.1
+pgvector==0.2.4
+numpy>=2.0.0
+scikit-learn>=1.7.0
+scipy>=1.16.0
+threadpoolctl>=3.6.0
 
 # HTTP Client
 httpx==0.25.2
@@ -23,6 +28,7 @@ websockets==12.0
 # Validation & Serialization
 pydantic==2.5.0
 pydantic-settings==2.1.0
+email-validator==2.2.0
 
 # NLP Libraries (pattern matching only)
 nltk==3.8.1

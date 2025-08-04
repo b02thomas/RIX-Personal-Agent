@@ -64,10 +64,29 @@ class Settings(BaseSettings):
     MCP_ANALYTICS_ENDPOINT: str = Field(default="/mcp/analytics-learning", env="MCP_ANALYTICS_ENDPOINT")
     MCP_NOTIFICATIONS_ENDPOINT: str = Field(default="/mcp/notification-management", env="MCP_NOTIFICATIONS_ENDPOINT")
     MCP_PROJECT_ENDPOINT: str = Field(default="/mcp/project-chatbot", env="MCP_PROJECT_ENDPOINT")
-    # Phase 5 Intelligence Features
+    # Intelligence Features (7 future Sub-Agent workflows)
     MCP_ROUTINE_COACHING_ENDPOINT: str = Field(default="/mcp/routine-coaching", env="MCP_ROUTINE_COACHING_ENDPOINT")
     MCP_PROJECT_INTELLIGENCE_ENDPOINT: str = Field(default="/mcp/project-intelligence", env="MCP_PROJECT_INTELLIGENCE_ENDPOINT")
     MCP_CALENDAR_OPTIMIZATION_ENDPOINT: str = Field(default="/mcp/calendar-optimization", env="MCP_CALENDAR_OPTIMIZATION_ENDPOINT")
+    MCP_BEHAVIORAL_ANALYTICS_ENDPOINT: str = Field(default="/mcp/behavioral-analytics", env="MCP_BEHAVIORAL_ANALYTICS_ENDPOINT")
+    MCP_KNOWLEDGE_INTELLIGENCE_ENDPOINT: str = Field(default="/mcp/knowledge-intelligence", env="MCP_KNOWLEDGE_INTELLIGENCE_ENDPOINT")
+    MCP_GOAL_INTELLIGENCE_ENDPOINT: str = Field(default="/mcp/goal-intelligence", env="MCP_GOAL_INTELLIGENCE_ENDPOINT")
+    MCP_DAILY_INTELLIGENCE_ENDPOINT: str = Field(default="/mcp/daily-intelligence", env="MCP_DAILY_INTELLIGENCE_ENDPOINT")
+    
+    # Database Configuration
+    DB_POOL_MIN_SIZE: int = Field(default=5, env="DB_POOL_MIN_SIZE")
+    DB_POOL_MAX_SIZE: int = Field(default=20, env="DB_POOL_MAX_SIZE")
+    DB_QUERY_TIMEOUT: int = Field(default=30, env="DB_QUERY_TIMEOUT")
+    
+    # Intelligence Configuration
+    INTELLIGENCE_MODE: str = Field(default="direct", env="INTELLIGENCE_MODE")  # direct or mcp
+    VECTOR_SIMILARITY_THRESHOLD: float = Field(default=0.7, env="VECTOR_SIMILARITY_THRESHOLD")
+    DEFAULT_PAGE_SIZE: int = Field(default=20, env="DEFAULT_PAGE_SIZE")
+    MAX_PAGE_SIZE: int = Field(default=100, env="MAX_PAGE_SIZE")
+    
+    # Development Configuration
+    DEV_MODE: bool = Field(default=False, env="DEV_MODE")
+    MOCK_N8N_RESPONSES: bool = Field(default=False, env="MOCK_N8N_RESPONSES")
     
     # Logging
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
@@ -83,6 +102,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # Allow extra fields for development
 
 
 # Global settings instance

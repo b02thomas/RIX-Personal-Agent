@@ -1,0 +1,821 @@
+/* /02-implementation/mobile-optimization/touch-optimizations.css */
+/* Touch-friendly styling improvements for mobile devices */
+/* Provides comprehensive touch interaction enhancements with haptic feedback and accessibility */
+/* RELEVANT FILES: responsive-breakpoints.css, mobile-navigation.tsx, color-system.css, updated-globals.css */
+
+/* ===== TOUCH TARGET OPTIMIZATION ===== */
+
+/* Base touch target standards */
+:root {
+  /* Touch target sizes (Apple/Google guidelines) */
+  --touch-target-minimum: 44px;     /* Minimum recommended */
+  --touch-target-comfortable: 48px; /* Comfortable for most users */
+  --touch-target-accessible: 56px;  /* Enhanced accessibility */
+  
+  /* Touch spacing standards */
+  --touch-spacing-tight: 8px;       /* Between small elements */
+  --touch-spacing-normal: 12px;     /* Standard spacing */
+  --touch-spacing-comfortable: 16px; /* Comfortable spacing */
+  --touch-spacing-loose: 24px;      /* Generous spacing */
+  
+  /* Touch feedback timings */
+  --touch-feedback-duration: 150ms;
+  --touch-feedback-delay: 0ms;
+  --touch-ripple-duration: 300ms;
+  
+  /* Haptic feedback intensities */
+  --haptic-light: 10;
+  --haptic-medium: 20;
+  --haptic-heavy: 30;
+}
+
+/* ===== UNIVERSAL TOUCH IMPROVEMENTS ===== */
+
+/* Improve touch responsiveness globally */
+* {
+  /* Remove tap delay on mobile */
+  touch-action: manipulation;
+  
+  /* Improve touch responsiveness */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  
+  /* Better text selection on touch */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection for content areas */
+p, span, div[contenteditable], input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* ===== TOUCH TARGET CLASSES ===== */
+
+/* Standard touch target */
+.touch-target {
+  min-height: var(--touch-target-minimum);
+  min-width: var(--touch-target-minimum);
+  padding: var(--space-2);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Comfortable touch target */
+.touch-target-comfortable {
+  min-height: var(--touch-target-comfortable);
+  min-width: var(--touch-target-comfortable);
+  padding: var(--space-3);
+}
+
+/* Enhanced accessibility touch target */
+.touch-target-accessible {
+  min-height: var(--touch-target-accessible);
+  min-width: var(--touch-target-accessible);
+  padding: var(--space-4);
+}
+
+/* Extended touch area (invisible padding) */
+.touch-target-extended {
+  position: relative;
+}
+
+.touch-target-extended::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--touch-target-comfortable);
+  height: var(--touch-target-comfortable);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+/* ===== TOUCH FEEDBACK EFFECTS ===== */
+
+/* Touch ripple effect */
+.touch-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: var(--primary-blue-alpha-20);
+  transform: translate(-50%, -50%);
+  transition: width var(--touch-ripple-duration) ease-out,
+              height var(--touch-ripple-duration) ease-out;
+  pointer-events: none;
+}
+
+.touch-ripple:active::before {
+  width: 200px;
+  height: 200px;
+}
+
+/* Touch scale feedback */
+.touch-scale {
+  transition: transform var(--touch-feedback-duration) ease-out;
+}
+
+.touch-scale:active {
+  transform: scale(0.95);
+}
+
+/* Touch opacity feedback */
+.touch-opacity {
+  transition: opacity var(--touch-feedback-duration) ease-out;
+}
+
+.touch-opacity:active {
+  opacity: 0.7;
+}
+
+/* Touch highlight feedback */
+.touch-highlight {
+  transition: background-color var(--touch-feedback-duration) ease-out;
+}
+
+.touch-highlight:active {
+  background-color: var(--primary-blue-alpha-10);
+}
+
+/* ===== MOBILE NAVIGATION TOUCH STYLES ===== */
+
+/* Mobile top navigation */
+.mobile-top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--mobile-nav-height);
+  background: var(--card-background);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 50;
+}
+
+.mobile-top-nav__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--space-4);
+}
+
+.mobile-top-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mobile-top-nav__brand-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary-blue);
+}
+
+.mobile-top-nav__brand-text {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.mobile-top-nav__menu-button {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: var(--transition-colors);
+}
+
+.mobile-top-nav__menu-button:hover {
+  color: var(--text-primary);
+  background: var(--card-background-hover);
+}
+
+.mobile-top-nav__menu-button:active {
+  background: var(--primary-blue-alpha-10);
+  transform: scale(0.95);
+}
+
+/* ===== MOBILE DRAWER TOUCH STYLES ===== */
+
+/* Drawer overlay */
+.mobile-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 60;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Mobile drawer */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background: var(--card-background);
+  border-right: 1px solid var(--border-color);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.mobile-drawer--open {
+  transform: translateX(280px);
+}
+
+.mobile-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background-dark);
+}
+
+.mobile-drawer__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mobile-drawer__brand-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--primary-blue);
+}
+
+.mobile-drawer__brand-text {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.mobile-drawer__close-button {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: var(--transition-colors);
+}
+
+.mobile-drawer__close-button:hover {
+  color: var(--text-primary);
+  background: var(--card-background-hover);
+}
+
+.mobile-drawer__content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-2);
+}
+
+/* Drawer navigation items */
+.mobile-drawer__nav-section {
+  margin-bottom: var(--space-1);
+}
+
+.mobile-drawer__nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-colors);
+  text-align: left;
+}
+
+.mobile-drawer__nav-item:hover {
+  color: var(--text-primary);
+  background: var(--card-background-hover);
+}
+
+.mobile-drawer__nav-item--active {
+  color: var(--primary-blue);
+  background: var(--primary-blue-alpha-10);
+}
+
+.mobile-drawer__nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.mobile-drawer__nav-label {
+  flex: 1;
+}
+
+.mobile-drawer__expand-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-normal);
+}
+
+/* Drawer submenu */
+.mobile-drawer__submenu {
+  margin-left: var(--space-6);
+  margin-top: var(--space-1);
+  border-left: 2px solid var(--border-color);
+  padding-left: var(--space-3);
+}
+
+.mobile-drawer__submenu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  transition: var(--transition-colors);
+  text-align: left;
+}
+
+.mobile-drawer__submenu-item:hover {
+  color: var(--text-secondary);
+  background: var(--card-background-hover);
+}
+
+.mobile-drawer__submenu-item--active {
+  color: var(--primary-blue);
+  background: var(--primary-blue-alpha-5);
+}
+
+.mobile-drawer__project-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+.mobile-drawer__submenu-label {
+  flex: 1;
+  truncate: true;
+}
+
+.mobile-drawer__project-status {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+.mobile-drawer__project-status--active {
+  background: var(--success-color);
+}
+
+/* Drawer footer */
+.mobile-drawer__footer {
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-4);
+  background: var(--background-dark);
+}
+
+.mobile-drawer__theme-section {
+  margin-bottom: var(--space-4);
+}
+
+.mobile-drawer__theme-toggle {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.mobile-drawer__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mobile-drawer__user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+}
+
+.mobile-drawer__user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-drawer__user-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  truncate: true;
+}
+
+.mobile-drawer__user-email {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  truncate: true;
+}
+
+/* ===== MOBILE BOTTOM NAVIGATION ===== */
+
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--mobile-bottom-nav-height);
+  background: var(--card-background);
+  border-top: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 50;
+}
+
+.mobile-bottom-nav__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+  padding: 0 var(--space-2);
+}
+
+.mobile-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex: 1;
+  max-width: 80px;
+  padding: var(--space-2);
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-colors);
+  position: relative;
+}
+
+.mobile-bottom-nav__item:hover {
+  color: var(--text-secondary);
+  background: var(--card-background-hover);
+}
+
+.mobile-bottom-nav__item--active {
+  color: var(--primary-blue);
+}
+
+.mobile-bottom-nav__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-bottom-nav__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  text-align: center;
+}
+
+.mobile-bottom-nav__active-indicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--primary-blue);
+  border-radius: var(--radius-full);
+}
+
+/* ===== PULL-TO-REFRESH STYLES ===== */
+
+.mobile-pull-to-refresh {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100%;
+}
+
+.mobile-pull-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--card-background);
+  border-bottom: 1px solid var(--border-color);
+  margin-top: calc(var(--mobile-nav-height) * -1);
+  transition: all 200ms ease-out;
+}
+
+.mobile-pull-indicator--ready .mobile-pull-arrow {
+  color: var(--primary-blue);
+  transform: rotate(180deg);
+}
+
+.mobile-pull-indicator--refreshing {
+  background: var(--primary-blue-alpha-5);
+}
+
+.mobile-pull-indicator__icon {
+  margin-bottom: var(--space-2);
+}
+
+.mobile-pull-arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: all 200ms ease-out;
+}
+
+.mobile-pull-arrow--flip {
+  transform: rotate(180deg);
+}
+
+.mobile-refresh-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.mobile-pull-indicator__text {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ===== TOUCH BUTTON VARIANTS ===== */
+
+/* Primary touch button */
+.touch-button-primary {
+  @extend .touch-target-comfortable;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: var(--transition-normal);
+}
+
+.touch-button-primary:hover {
+  background: var(--primary-blue-light);
+}
+
+.touch-button-primary:active {
+  background: var(--primary-blue-dark);
+  transform: scale(0.98);
+}
+
+/* Secondary touch button */
+.touch-button-secondary {
+  @extend .touch-target-comfortable;
+  background: var(--card-background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--button-radius);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: var(--transition-normal);
+}
+
+.touch-button-secondary:hover {
+  background: var(--card-background-hover);
+  border-color: var(--border-color-light);
+}
+
+.touch-button-secondary:active {
+  background: var(--primary-blue-alpha-5);
+  transform: scale(0.98);
+}
+
+/* Ghost touch button */
+.touch-button-ghost {
+  @extend .touch-target-comfortable;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-radius: var(--button-radius);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: var(--transition-normal);
+}
+
+.touch-button-ghost:hover {
+  color: var(--text-primary);
+  background: var(--card-background-hover);
+}
+
+.touch-button-ghost:active {
+  background: var(--primary-blue-alpha-10);
+  transform: scale(0.98);
+}
+
+/* ===== TOUCH INPUT STYLES ===== */
+
+.touch-input {
+  min-height: var(--touch-target-comfortable);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background: var(--card-background);
+  color: var(--text-primary);
+  font-size: var(--text-base); /* Prevent zoom on iOS */
+  transition: var(--transition-colors);
+}
+
+.touch-input:focus {
+  border-color: var(--primary-blue);
+  outline: none;
+  background: var(--background-dark);
+}
+
+.touch-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Touch textarea */
+.touch-textarea {
+  @extend .touch-input;
+  min-height: calc(var(--touch-target-comfortable) * 2);
+  resize: vertical;
+  line-height: var(--leading-normal);
+}
+
+/* ===== TOUCH CARD STYLES ===== */
+
+.touch-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  padding: var(--space-4);
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.touch-card:hover {
+  background: var(--card-background-hover);
+  border-color: var(--border-color-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.touch-card:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== TOUCH ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .touch-target,
+  .touch-button-primary,
+  .touch-button-secondary,
+  .touch-input {
+    border-width: 2px;
+    border-style: solid;
+  }
+  
+  .mobile-bottom-nav__item--active {
+    background: var(--primary-blue-alpha-20);
+    border: 2px solid var(--primary-blue);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer,
+  .touch-scale,
+  .touch-opacity,
+  .touch-highlight,
+  .touch-ripple::before,
+  .mobile-pull-arrow,
+  .mobile-refresh-spinner {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+}
+
+/* Focus visibility for keyboard navigation */
+.touch-target:focus-visible,
+.touch-button-primary:focus-visible,
+.touch-button-secondary:focus-visible,
+.touch-button-ghost:focus-visible {
+  outline: 3px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* ===== TOUCH RESPONSIVE ADJUSTMENTS ===== */
+
+/* Tablet optimizations */
+@media screen and (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none; /* Use sidebar instead */
+  }
+  
+  .mobile-drawer {
+    width: 320px;
+  }
+  
+  .mobile-drawer--open {
+    transform: translateX(320px);
+  }
+  
+  .touch-target {
+    min-height: var(--touch-target-comfortable);
+    min-width: var(--touch-target-comfortable);
+  }
+}
+
+/* Desktop - minimal touch optimizations */
+@media screen and (min-width: 1024px) {
+  .mobile-top-nav,
+  .mobile-drawer-overlay,
+  .mobile-drawer {
+    display: none; /* Use desktop sidebar */
+  }
+  
+  /* Reduce touch targets to normal for mouse interaction */
+  .touch-target {
+    min-height: auto;
+    min-width: auto;
+    padding: var(--space-2);
+  }
+}
+
+/* ===== TOUCH PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Hardware acceleration for touch interactions */
+.mobile-drawer,
+.mobile-bottom-nav,
+.mobile-top-nav,
+.touch-scale,
+.touch-ripple::before {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Optimize scrolling performance */
+.mobile-drawer__content,
+.mobile-pull-to-refresh {
+  contain: layout style;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Memory management for animations */
+.mobile-drawer:not(.mobile-drawer--open) {
+  will-change: auto;
+}
+
+.touch-ripple:not(:active)::before {
+  will-change: auto;
+}

@@ -1,0 +1,712 @@
+/* /01-implementation/color-refinement/component-styles/card-styles.css */
+/* Card component styles with refined color scheme and consistent elevation patterns */
+/* Implements exact color values, 8px border radius, and smooth hover transitions */
+/* RELEVANT FILES: color-system.css, updated-globals.css, ui/card.tsx, dashboard-styles.css */
+
+/* ===== BASE CARD STYLES ===== */
+.rix-card {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  /* Design system styling */
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+  
+  /* Transitions */
+  transition: var(--transition-normal);
+  
+  /* Performance */
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+.rix-card:hover {
+  background: var(--card-background-hover);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px) translateZ(0);
+}
+
+/* ===== CARD VARIANTS ===== */
+
+/* Elevated Card */
+.rix-card--elevated {
+  box-shadow: var(--shadow-lg);
+  border: none;
+}
+
+.rix-card--elevated:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* Outlined Card */
+.rix-card--outlined {
+  border-width: 2px;
+  box-shadow: none;
+}
+
+.rix-card--outlined:hover {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-alpha-20);
+}
+
+/* Flat Card */
+.rix-card--flat {
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+.rix-card--flat:hover {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  transform: none;
+}
+
+/* Interactive Card */
+.rix-card--interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.rix-card--interactive:active {
+  transform: translateY(0) scale(0.98) translateZ(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.rix-card--interactive:focus-visible {
+  outline: var(--state-focus-outline);
+  outline-offset: var(--state-focus-outline-offset);
+  border-color: var(--primary-blue);
+}
+
+/* Selected Card */
+.rix-card--selected {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-alpha-20), var(--shadow-md);
+}
+
+.rix-card--selected:hover {
+  border-color: var(--primary-blue-dark);
+  box-shadow: 0 0 0 3px var(--primary-blue-alpha-30), var(--shadow-lg);
+}
+
+/* Disabled Card */
+.rix-card--disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+}
+
+/* Error Card */
+.rix-card--error {
+  border-color: var(--error-color);
+  background: var(--error-background);
+}
+
+.rix-card--error:hover {
+  border-color: var(--error-color);
+  background: var(--error-background);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1), var(--shadow-md);
+}
+
+/* Warning Card */
+.rix-card--warning {
+  border-color: var(--warning-color);
+  background: var(--warning-background);
+}
+
+.rix-card--warning:hover {
+  border-color: var(--warning-color);
+  background: var(--warning-background);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1), var(--shadow-md);
+}
+
+/* Success Card */
+.rix-card--success {
+  border-color: var(--success-color);
+  background: var(--success-background);
+}
+
+.rix-card--success:hover {
+  border-color: var(--success-color);
+  background: var(--success-background);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1), var(--shadow-md);
+}
+
+/* Info Card */
+.rix-card--info {
+  border-color: var(--info-color);
+  background: var(--info-background);
+}
+
+.rix-card--info:hover {
+  border-color: var(--info-color);
+  background: var(--info-background);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1), var(--shadow-md);
+}
+
+/* ===== CARD HEADER ===== */
+.rix-card-header {
+  padding: var(--space-4) var(--space-4) var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.rix-card-header:last-child {
+  border-bottom: none;
+  padding-bottom: var(--space-4);
+}
+
+.rix-card-header--compact {
+  padding: var(--space-3);
+}
+
+.rix-card-header--large {
+  padding: var(--space-6) var(--space-6) var(--space-4) var(--space-6);
+}
+
+/* Header content layout */
+.rix-card-header__content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.rix-card-header__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rix-card-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ===== CARD TITLE ===== */
+.rix-card-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-1) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rix-card-title--small {
+  font-size: var(--text-base);
+}
+
+.rix-card-title--large {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-2);
+}
+
+.rix-card-title--multiline {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== CARD DESCRIPTION ===== */
+.rix-card-description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rix-card-description--multiline {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== CARD CONTENT ===== */
+.rix-card-content {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.rix-card-content--compact {
+  padding: var(--space-3);
+}
+
+.rix-card-content--large {
+  padding: var(--space-6);
+}
+
+.rix-card-content--no-padding {
+  padding: 0;
+}
+
+/* Content with header */
+.rix-card-header + .rix-card-content {
+  padding-top: var(--space-3);
+}
+
+/* Content with footer */
+.rix-card-content:has(+ .rix-card-footer) {
+  padding-bottom: var(--space-3);
+}
+
+/* ===== CARD FOOTER ===== */
+.rix-card-footer {
+  padding: var(--space-3) var(--space-4) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--border-color);
+  background: var(--background-subtle, var(--card-background));
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+  flex-shrink: 0;
+}
+
+.rix-card-footer:first-child {
+  border-top: none;
+  border-radius: var(--card-radius);
+  padding-top: var(--space-4);
+}
+
+.rix-card-footer--compact {
+  padding: var(--space-2) var(--space-3);
+}
+
+.rix-card-footer--large {
+  padding: var(--space-4) var(--space-6) var(--space-6) var(--space-6);
+}
+
+/* Footer content layout */
+.rix-card-footer__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.rix-card-footer__content--center {
+  justify-content: center;
+}
+
+.rix-card-footer__content--start {
+  justify-content: flex-start;
+}
+
+.rix-card-footer__content--end {
+  justify-content: flex-end;
+}
+
+.rix-card-footer__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rix-card-footer__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ===== SPECIAL CARD TYPES ===== */
+
+/* Stat Card */
+.rix-stat-card {
+  padding: var(--space-4);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.rix-stat-card:hover {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: var(--shadow-lg);
+}
+
+.rix-stat-card__icon {
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  margin: 0 auto var(--space-3) auto;
+  color: var(--primary-blue);
+}
+
+.rix-stat-card__value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  line-height: 1;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.rix-stat-card__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.rix-stat-card__change {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.rix-stat-card__change--positive {
+  color: var(--success-color);
+}
+
+.rix-stat-card__change--negative {
+  color: var(--error-color);
+}
+
+.rix-stat-card__change--neutral {
+  color: var(--text-muted);
+}
+
+/* Project Card */
+.rix-project-card {
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.rix-project-card:hover {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: var(--shadow-lg);
+}
+
+.rix-project-card__header {
+  position: relative;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.rix-project-card__status {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--card-background);
+}
+
+.rix-project-card__status--active {
+  background: var(--success-color);
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.3);
+}
+
+.rix-project-card__status--inactive {
+  background: var(--border-color);
+}
+
+.rix-project-card__status--warning {
+  background: var(--warning-color);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
+}
+
+.rix-project-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+  padding-right: var(--space-6);
+}
+
+.rix-project-card__description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rix-project-card__meta {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: var(--background-subtle, var(--card-background));
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+}
+
+.rix-project-card__progress {
+  flex: 1;
+  min-width: 0;
+}
+
+.rix-project-card__progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-1);
+}
+
+.rix-project-card__progress-fill {
+  height: 100%;
+  background: var(--primary-blue);
+  border-radius: inherit;
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+.rix-project-card__progress-text {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.rix-project-card__actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Feature Card */
+.rix-feature-card {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.rix-feature-card:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: var(--shadow-xl);
+}
+
+.rix-feature-card__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-4) auto;
+  color: var(--primary-blue);
+}
+
+.rix-feature-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.rix-feature-card__description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+/* ===== CARD MEDIA ===== */
+.rix-card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--border-color);
+}
+
+.rix-card-media--top {
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+.rix-card-media--bottom {
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+}
+
+.rix-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-slow);
+}
+
+.rix-card:hover .rix-card-media img {
+  transform: scale(1.05) translateZ(0);
+}
+
+.rix-card-media__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  display: flex;
+  align-items: end;
+  padding: var(--space-4);
+  color: white;
+}
+
+/* ===== CARD LOADING STATES ===== */
+.rix-card--loading {
+  pointer-events: none;
+  position: relative;
+}
+
+.rix-card--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-background);
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rix-card--loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: card-spin 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes card-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Skeleton loading */
+.rix-card-skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.rix-card-skeleton .rix-card-title,
+.rix-card-skeleton .rix-card-description,
+.rix-card-skeleton .rix-card-content {
+  background: var(--border-color);
+  border-radius: var(--radius-sm);
+  color: transparent;
+}
+
+.rix-card-skeleton .rix-card-title {
+  height: 24px;
+  margin-bottom: var(--space-2);
+}
+
+.rix-card-skeleton .rix-card-description {
+  height: 16px;
+  width: 80%;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 767px) {
+  .rix-card-header,
+  .rix-card-content,
+  .rix-card-footer {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+  
+  .rix-card-header--large,
+  .rix-card-content--large,
+  .rix-card-footer--large {
+    padding: var(--space-4) var(--space-3);
+  }
+  
+  .rix-stat-card__value {
+    font-size: var(--text-2xl);
+  }
+  
+  .rix-feature-card {
+    padding: var(--space-4) var(--space-3);
+  }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .rix-card,
+  .rix-card-media img {
+    transition: none !important;
+  }
+  
+  .rix-card:hover,
+  .rix-stat-card:hover,
+  .rix-project-card:hover,
+  .rix-feature-card:hover {
+    transform: none !important;
+  }
+  
+  .rix-card--loading::before {
+    animation: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .rix-card {
+    border-width: 2px;
+  }
+  
+  .rix-card--selected {
+    border-width: 3px;
+  }
+}
+
+/* ===== DARK MODE OPTIMIZATIONS ===== */
+.rix-card {
+  /* Add subtle inner shadow for depth */
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.rix-card:hover {
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.rix-card {
+  /* Enable hardware acceleration */
+  will-change: transform, box-shadow;
+}
+
+/* Clean up will-change after interactions */
+.rix-card:not(:hover):not(:focus):not(.rix-card--interactive:focus-visible) {
+  will-change: auto;
+}
+
+/* Optimize frequently used cards */
+.rix-stat-card,
+.rix-project-card {
+  contain: layout style;
+}
