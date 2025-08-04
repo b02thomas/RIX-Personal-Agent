@@ -473,7 +473,9 @@ describe('usePreferencesStore', () => {
         result.current.updatePreferences({
           notifications: {
             push: false,
-            voice: false
+            email: true,
+            voice: false,
+            sound: true
           }
         });
       });

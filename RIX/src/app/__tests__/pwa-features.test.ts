@@ -17,6 +17,9 @@ const mockServiceWorkerRegistration = {
   unregister: jest.fn(),
   showNotification: jest.fn(),
   getNotifications: jest.fn(),
+  sync: {
+    register: jest.fn(() => Promise.resolve()),
+  },
 };
 
 // Mock notification API
@@ -280,7 +283,7 @@ describe('PWA Features', () => {
         icon: '/icons/icon-72x72.png',
         badge: '/icons/icon-72x72.png',
         tag: 'test',
-        renotify: true,
+        // renotify: true, // Removed: not part of standard NotificationOptions
       });
 
       expect(notification.title).toBe('Test Notification');
@@ -379,7 +382,7 @@ describe('PWA Features', () => {
   describe('Background Sync', () => {
     it('should register background sync', async () => {
       const mockSync = {
-        register: jest.fn(() => Promise.resolve()),
+        register: jest.fn((tag: string) => Promise.resolve()),
       };
 
       Object.defineProperty(mockServiceWorkerRegistration, 'sync', {
@@ -497,8 +500,8 @@ describe('PWA Features', () => {
       const compressedData = 'compressed-data';
 
       // Mock compression
-      const mockCompress = jest.fn(() => compressedData);
-      const mockDecompress = jest.fn(() => 'Large response content');
+      const mockCompress = jest.fn((data: string) => compressedData);
+      const mockDecompress = jest.fn((data: string) => 'Large response content');
 
       // Simulate compression before caching
       const dataToCache = mockCompress(await originalResponse.text());

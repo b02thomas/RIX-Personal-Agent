@@ -73,7 +73,7 @@ const mockMainAgentResponse = {
 };
 
 // Mock fetch globally
-global.fetch = jest.fn();
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 describe('Intelligence API Integration Tests', () => {
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe('Intelligence API Integration Tests', () => {
 
     it('should proxy routine coaching requests to Main Agent successfully', async () => {
       // Mock successful Main Agent response
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockMainAgentResponse.routine_coaching,
         status: 200
@@ -172,7 +172,7 @@ describe('Intelligence API Integration Tests', () => {
 
     it('should handle Main Agent errors gracefully', async () => {
       // Mock Main Agent error response
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: async () => ({
@@ -232,7 +232,7 @@ describe('Intelligence API Integration Tests', () => {
 
     it('should proxy project intelligence requests successfully', async () => {
       // Mock successful Main Agent response
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockMainAgentResponse.project_intelligence,
         status: 200
@@ -289,7 +289,7 @@ describe('Intelligence API Integration Tests', () => {
         }
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => projectSpecificResponse,
         status: 200
@@ -325,7 +325,7 @@ describe('Intelligence API Integration Tests', () => {
 
     it('should proxy calendar optimization requests successfully', async () => {
       // Mock successful Main Agent response
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockMainAgentResponse.calendar_optimization,
         status: 200
@@ -382,7 +382,7 @@ describe('Intelligence API Integration Tests', () => {
         }
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => timeSpecificResponse,
         status: 200
@@ -441,7 +441,7 @@ describe('Intelligence API Integration Tests', () => {
       };
 
       // Mock the fetch calls to knowledge and goals APIs
-      (global.fetch as jest.Mock)
+      (global.fetch as jest.MockedFunction<typeof fetch>)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => knowledgeMetricsResponse
@@ -520,7 +520,7 @@ describe('Intelligence API Integration Tests', () => {
         searchTime: 0.045
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => searchResponse
       });
@@ -574,7 +574,7 @@ describe('Intelligence API Integration Tests', () => {
         searchTime: 0.032
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
         json: async () => searchResponse
       });
@@ -626,7 +626,7 @@ describe('Intelligence API Integration Tests', () => {
       
       for (const endpoint of endpoints) {
         // Mock Main Agent response
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
+        (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, processing_info: { workflow_type: endpoint.split('/').pop() } })
         });
@@ -646,7 +646,7 @@ describe('Intelligence API Integration Tests', () => {
 
       for (const testCase of errorTestCases) {
         // Mock Main Agent error
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
+        (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
           ok: false,
           status: 500,
           json: async () => ({ error: "Processing failed" })

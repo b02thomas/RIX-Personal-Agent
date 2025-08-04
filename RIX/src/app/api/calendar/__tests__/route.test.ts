@@ -33,8 +33,19 @@ describe('Calendar API Routes', () => {
     jest.clearAllMocks();
     
     // Default auth mocks
-    mockAuth.verifyToken.mockResolvedValue({ userId: 'mock-user-1' });
-    mockAuth.findUserById.mockResolvedValue({ id: 'mock-user-1', email: 'test@example.com' });
+    mockAuth.verifyToken.mockResolvedValue({ 
+      userId: 'mock-user-1', 
+      email: 'test@example.com',
+      iat: Date.now() / 1000,
+      exp: Date.now() / 1000 + 900
+    });
+    mockAuth.findUserById.mockResolvedValue({ 
+      id: 'mock-user-1', 
+      email: 'test@example.com',
+      password_hash: 'hashed',
+      created_at: new Date(),
+      updated_at: new Date()
+    });
     
     // Default MockAuth enabled
     mockMockAuth.isEnabled.mockReturnValue(true);
@@ -250,7 +261,7 @@ describe('Calendar API Routes', () => {
     });
 
     it('should validate required fields', async () => {
-      const invalidData = { ...validEventData };
+      const invalidData: any = { ...validEventData };
       delete invalidData.title;
 
       const request = createMockRequest(invalidData);
@@ -263,7 +274,7 @@ describe('Calendar API Routes', () => {
     });
 
     it('should validate start and end time', async () => {
-      const invalidData = { ...validEventData };
+      const invalidData: any = { ...validEventData };
       delete invalidData.startTime;
 
       const request = createMockRequest(invalidData);

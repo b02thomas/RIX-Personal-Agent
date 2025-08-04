@@ -46,7 +46,8 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(bandit:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(gh run:*)"
     ],
     "deny": []
   }
