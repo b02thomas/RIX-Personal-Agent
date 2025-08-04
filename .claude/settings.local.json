@@ -45,7 +45,8 @@
       "Bash(gh workflow:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
-      "Bash(bandit:*)"
+      "Bash(bandit:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

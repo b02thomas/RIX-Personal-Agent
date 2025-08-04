@@ -1,0 +1,32 @@
+# Requirements for RIX Voice Intelligence Phase 1
+# Enhanced Voice Processor Foundation with German Intelligence
+
+# Core dependencies
+openai>=1.0.0                    # OpenAI Whisper API integration
+fastapi>=0.104.1                 # API framework (should match main agent)
+pydantic>=2.0.0                  # Data validation and settings
+python-multipart>=0.0.6         # File upload support for FastAPI
+
+# Audio processing (optional for enhanced features)
+numpy>=1.24.0                    # Numerical computing for audio analysis
+librosa>=0.10.0                  # Advanced audio processing (optional)
+
+# Database integration (for future phases)
+asyncpg>=0.29.0                  # PostgreSQL async driver
+
+# Logging and monitoring
+structlog>=23.0.0                # Structured logging
+
+# Development and testing
+pytest>=7.4.0                    # Testing framework
+pytest-asyncio>=0.21.0          # Async testing support
+pytest-mock>=3.11.0             # Mocking for tests
+
+# Performance monitoring
+psutil>=5.9.0                    # System performance monitoring
+
+# Notes:
+# - numpy and librosa are optional dependencies for enhanced audio processing
+# - If not available, the system falls back to basic audio processing
+# - All dependencies should be compatible with main-agent requirements
+# - OpenAI API key required for Whisper transcription functionality
