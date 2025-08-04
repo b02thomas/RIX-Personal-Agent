@@ -8,6 +8,11 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timedelta
 import httpx
+import sys
+import os
+
+# Add main-agent directory to Python path so we can import 'app' module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.services.context_manager import ContextManager, context_manager
 

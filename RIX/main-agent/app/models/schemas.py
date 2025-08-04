@@ -3,31 +3,30 @@
 # Supports all 7 future Sub-Agent workflows with comprehensive validation
 # RELEVANT FILES: core/database.py, api/endpoints/*, database/schema.sql
 
-from pydantic import BaseModel, Field, validator, EmailStr
-from typing import Optional, List, Dict, Any, Union
-from datetime import datetime, date, time
-from enum import Enum
 import uuid
+from datetime import date, datetime, time
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, EmailStr, Field, validator
 
 
 # Base Classes
 class TimestampedModel(BaseModel):
     """Base model with timestamp fields"""
+
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 
 class RIXBaseModel(BaseModel):
     """Base model for RIX entities with common fields"""
+
     id: Optional[uuid.UUID] = None
-    
+
     class Config:
         from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            uuid.UUID: lambda v: str(v)
-        }
+        json_encoders = {datetime: lambda v: v.isoformat(), date: lambda v: v.isoformat(), uuid.UUID: lambda v: str(v)}
 
 
 # Enums
@@ -110,6 +109,7 @@ class MessageRole(str, Enum):
 # User Management Models
 class UserBase(BaseModel):
     """Base user model"""
+
     email: EmailStr
     full_name: str
     timezone: str = "UTC"
@@ -117,17 +117,19 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """User creation model"""
+
     password: str
-    
-    @validator('password')
+
+    @validator("password")
     def validate_password(cls, v):
         if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
+            raise ValueError("Password must be at least 8 characters long")
         return v
 
 
 class UserUpdate(BaseModel):
     """User update model"""
+
     full_name: Optional[str] = None
     timezone: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -135,6 +137,7 @@ class UserUpdate(BaseModel):
 
 class User(RIXBaseModel, UserBase, TimestampedModel):
     """Complete user model"""
+
     is_active: bool = True
     is_verified: bool = False
     avatar_url: Optional[str] = None
@@ -143,6 +146,7 @@ class User(RIXBaseModel, UserBase, TimestampedModel):
 
 class UserPreferences(RIXBaseModel, TimestampedModel):
     """User preferences model"""
+
     user_id: uuid.UUID
     theme: str = "dark"
     language: str = "en"
@@ -155,6 +159,7 @@ class UserPreferences(RIXBaseModel, TimestampedModel):
 # Chat & Conversation Models
 class ConversationBase(BaseModel):
     """Base conversation model"""
+
     title: Optional[str] = None
     conversation_type: str = "general"
     context_metadata: Dict[str, Any] = {}
@@ -162,17 +167,20 @@ class ConversationBase(BaseModel):
 
 class ConversationCreate(ConversationBase):
     """Conversation creation model"""
+
     pass
 
 
 class Conversation(RIXBaseModel, ConversationBase, TimestampedModel):
     """Complete conversation model"""
+
     user_id: uuid.UUID
     is_active: bool = True
 
 
 class MessageBase(BaseModel):
     """Base message model"""
+
     content: str
     message_type: str = "text"
     role: MessageRole
@@ -181,11 +189,13 @@ class MessageBase(BaseModel):
 
 class MessageCreate(MessageBase):
     """Message creation model"""
+
     conversation_id: uuid.UUID
 
 
 class Message(RIXBaseModel, MessageBase, TimestampedModel):
     """Complete message model"""
+
     conversation_id: uuid.UUID
     user_id: uuid.UUID
     embedding: Optional[List[float]] = None
@@ -195,6 +205,7 @@ class Message(RIXBaseModel, MessageBase, TimestampedModel):
 # Project & Task Management Models
 class ProjectBase(BaseModel):
     """Base project model"""
+
     name: str
     description: Optional[str] = None
     status: ProjectStatus = ProjectStatus.ACTIVE
@@ -208,11 +219,13 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     """Project creation model"""
+
     pass
 
 
 class ProjectUpdate(BaseModel):
     """Project update model"""
+
     name: Optional[str] = None
     description: Optional[str] = None
     status: Optional[ProjectStatus] = None
@@ -226,12 +239,14 @@ class ProjectUpdate(BaseModel):
 
 class Project(RIXBaseModel, ProjectBase, TimestampedModel):
     """Complete project model"""
+
     user_id: uuid.UUID
     ai_health_score: int = Field(default=50, ge=0, le=100)
 
 
 class TaskBase(BaseModel):
     """Base task model"""
+
     title: str
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.TODO
@@ -244,11 +259,13 @@ class TaskBase(BaseModel):
 
 class TaskCreate(TaskBase):
     """Task creation model"""
+
     project_id: Optional[uuid.UUID] = None
 
 
 class TaskUpdate(BaseModel):
     """Task update model"""
+
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
@@ -263,6 +280,7 @@ class TaskUpdate(BaseModel):
 
 class Task(RIXBaseModel, TaskBase, TimestampedModel):
     """Complete task model"""
+
     user_id: uuid.UUID
     project_id: Optional[uuid.UUID] = None
     actual_duration: Optional[int] = None
@@ -272,6 +290,7 @@ class Task(RIXBaseModel, TaskBase, TimestampedModel):
 # Calendar & Scheduling Models
 class CalendarEventBase(BaseModel):
     """Base calendar event model"""
+
     title: str
     description: Optional[str] = None
     start_time: datetime
@@ -290,11 +309,13 @@ class CalendarEventBase(BaseModel):
 
 class CalendarEventCreate(CalendarEventBase):
     """Calendar event creation model"""
+
     pass
 
 
 class CalendarEventUpdate(BaseModel):
     """Calendar event update model"""
+
     title: Optional[str] = None
     description: Optional[str] = None
     start_time: Optional[datetime] = None
@@ -313,11 +334,13 @@ class CalendarEventUpdate(BaseModel):
 
 class CalendarEvent(RIXBaseModel, CalendarEventBase, TimestampedModel):
     """Complete calendar event model"""
+
     user_id: uuid.UUID
 
 
 class ProductivityTrackingBase(BaseModel):
     """Base productivity tracking model"""
+
     date: date
     productivity_score: Optional[int] = Field(None, ge=1, le=10)
     energy_level: Optional[int] = Field(None, ge=1, le=10)
@@ -329,11 +352,13 @@ class ProductivityTrackingBase(BaseModel):
 
 class ProductivityTrackingCreate(ProductivityTrackingBase):
     """Productivity tracking creation model"""
+
     event_id: Optional[uuid.UUID] = None
 
 
 class ProductivityTracking(RIXBaseModel, ProductivityTrackingBase):
     """Complete productivity tracking model"""
+
     user_id: uuid.UUID
     event_id: Optional[uuid.UUID] = None
     created_at: Optional[datetime] = None
@@ -342,6 +367,7 @@ class ProductivityTracking(RIXBaseModel, ProductivityTrackingBase):
 # Routine Management Models
 class RoutineBase(BaseModel):
     """Base routine model"""
+
     name: str
     description: Optional[str] = None
     routine_type: RoutineType = RoutineType.DAILY
@@ -353,11 +379,13 @@ class RoutineBase(BaseModel):
 
 class RoutineCreate(RoutineBase):
     """Routine creation model"""
+
     pass
 
 
 class RoutineUpdate(BaseModel):
     """Routine update model"""
+
     name: Optional[str] = None
     description: Optional[str] = None
     routine_type: Optional[RoutineType] = None
@@ -370,12 +398,14 @@ class RoutineUpdate(BaseModel):
 
 class Routine(RIXBaseModel, RoutineBase, TimestampedModel):
     """Complete routine model"""
+
     user_id: uuid.UUID
     is_active: bool = True
 
 
 class RoutineCompletionBase(BaseModel):
     """Base routine completion model"""
+
     completion_date: date
     habits_completed: List[str] = []
     completion_percentage: int = Field(default=0, ge=0, le=100)
@@ -388,11 +418,13 @@ class RoutineCompletionBase(BaseModel):
 
 class RoutineCompletionCreate(RoutineCompletionBase):
     """Routine completion creation model"""
+
     routine_id: uuid.UUID
 
 
 class RoutineCompletion(RIXBaseModel, RoutineCompletionBase):
     """Complete routine completion model"""
+
     user_id: uuid.UUID
     routine_id: uuid.UUID
     created_at: Optional[datetime] = None
@@ -401,6 +433,7 @@ class RoutineCompletion(RIXBaseModel, RoutineCompletionBase):
 # Knowledge Management Models
 class KnowledgeEntryBase(BaseModel):
     """Base knowledge entry model"""
+
     title: str
     content: str
     entry_type: KnowledgeEntryType = KnowledgeEntryType.NOTE
@@ -415,11 +448,13 @@ class KnowledgeEntryBase(BaseModel):
 
 class KnowledgeEntryCreate(KnowledgeEntryBase):
     """Knowledge entry creation model"""
+
     pass
 
 
 class KnowledgeEntryUpdate(BaseModel):
     """Knowledge entry update model"""
+
     title: Optional[str] = None
     content: Optional[str] = None
     entry_type: Optional[KnowledgeEntryType] = None
@@ -434,12 +469,14 @@ class KnowledgeEntryUpdate(BaseModel):
 
 class KnowledgeEntry(RIXBaseModel, KnowledgeEntryBase, TimestampedModel):
     """Complete knowledge entry model"""
+
     user_id: uuid.UUID
     embedding: Optional[List[float]] = None
 
 
 class KnowledgeSearchRequest(BaseModel):
     """Knowledge search request model"""
+
     query: str
     limit: int = Field(default=10, ge=1, le=50)
     category: Optional[str] = None
@@ -449,6 +486,7 @@ class KnowledgeSearchRequest(BaseModel):
 
 class KnowledgeSearchResult(BaseModel):
     """Knowledge search result model"""
+
     entry: KnowledgeEntry
     similarity_score: float
 
@@ -456,6 +494,7 @@ class KnowledgeSearchResult(BaseModel):
 # Goal Management Models
 class GoalBase(BaseModel):
     """Base goal model"""
+
     title: str
     description: Optional[str] = None
     goal_type: GoalType = GoalType.PERSONAL
@@ -472,11 +511,13 @@ class GoalBase(BaseModel):
 
 class GoalCreate(GoalBase):
     """Goal creation model"""
+
     pass
 
 
 class GoalUpdate(BaseModel):
     """Goal update model"""
+
     title: Optional[str] = None
     description: Optional[str] = None
     goal_type: Optional[GoalType] = None
@@ -494,12 +535,14 @@ class GoalUpdate(BaseModel):
 
 class Goal(RIXBaseModel, GoalBase, TimestampedModel):
     """Complete goal model"""
+
     user_id: uuid.UUID
     status: GoalStatus = GoalStatus.ACTIVE
 
 
 class GoalProgressBase(BaseModel):
     """Base goal progress model"""
+
     progress_value: float
     notes: Optional[str] = None
     milestone_reached: bool = False
@@ -510,11 +553,13 @@ class GoalProgressBase(BaseModel):
 
 class GoalProgressCreate(GoalProgressBase):
     """Goal progress creation model"""
+
     goal_id: uuid.UUID
 
 
 class GoalProgress(RIXBaseModel, GoalProgressBase):
     """Complete goal progress model"""
+
     goal_id: uuid.UUID
     user_id: uuid.UUID
     created_at: Optional[datetime] = None
@@ -523,6 +568,7 @@ class GoalProgress(RIXBaseModel, GoalProgressBase):
 # Analytics Models
 class BehavioralAnalyticsBase(BaseModel):
     """Base behavioral analytics model"""
+
     analysis_type: str
     analysis_period: AnalysisPeriod
     period_start: date
@@ -536,11 +582,13 @@ class BehavioralAnalyticsBase(BaseModel):
 
 class BehavioralAnalyticsCreate(BehavioralAnalyticsBase):
     """Behavioral analytics creation model"""
+
     pass
 
 
 class BehavioralAnalytics(RIXBaseModel, BehavioralAnalyticsBase):
     """Complete behavioral analytics model"""
+
     user_id: uuid.UUID
     created_at: Optional[datetime] = None
 
@@ -548,6 +596,7 @@ class BehavioralAnalytics(RIXBaseModel, BehavioralAnalyticsBase):
 # Dashboard & Summary Models
 class DashboardSummary(BaseModel):
     """User dashboard summary model"""
+
     user_id: uuid.UUID
     full_name: str
     total_tasks: int = 0
@@ -564,6 +613,7 @@ class DashboardSummary(BaseModel):
 # Intelligence Response Models
 class IntelligenceResponse(BaseModel):
     """Base intelligence response model"""
+
     success: bool
     data: Dict[str, Any]
     insights: Optional[Dict[str, Any]] = None
@@ -574,6 +624,7 @@ class IntelligenceResponse(BaseModel):
 
 class RoutineCoachingResponse(IntelligenceResponse):
     """Routine coaching response model"""
+
     streak_info: Optional[Dict[str, Any]] = None
     coaching_message: Optional[str] = None
     motivation_score: Optional[float] = None
@@ -581,6 +632,7 @@ class RoutineCoachingResponse(IntelligenceResponse):
 
 class ProjectHealthResponse(IntelligenceResponse):
     """Project health response model"""
+
     health_score: int
     risk_factors: List[Dict[str, Any]] = []
     success_indicators: List[Dict[str, Any]] = []
@@ -590,6 +642,7 @@ class ProjectHealthResponse(IntelligenceResponse):
 
 class CalendarOptimizationResponse(IntelligenceResponse):
     """Calendar optimization response model"""
+
     suggestions: List[Dict[str, Any]] = []
     conflicts_resolved: int = 0
     productivity_improvements: List[Dict[str, Any]] = []
@@ -598,6 +651,7 @@ class CalendarOptimizationResponse(IntelligenceResponse):
 # MCP Integration Models
 class MCPInteractionLog(RIXBaseModel):
     """MCP interaction log model"""
+
     user_id: uuid.UUID
     sub_agent_type: str
     endpoint_called: str
@@ -613,6 +667,7 @@ class MCPInteractionLog(RIXBaseModel):
 # Pagination Models
 class PaginationParams(BaseModel):
     """Pagination parameters"""
+
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)
     order_by: Optional[str] = "created_at DESC"
@@ -620,6 +675,7 @@ class PaginationParams(BaseModel):
 
 class PaginatedResponse(BaseModel):
     """Paginated response model"""
+
     items: List[Any]
     total_count: int
     page: int
@@ -632,6 +688,7 @@ class PaginatedResponse(BaseModel):
 # API Response Models
 class APIResponse(BaseModel):
     """Standard API response model"""
+
     success: bool
     message: Optional[str] = None
     data: Optional[Any] = None
@@ -640,6 +697,7 @@ class APIResponse(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """Health check response model"""
+
     status: str
     timestamp: datetime
     services: Dict[str, Any] = {}

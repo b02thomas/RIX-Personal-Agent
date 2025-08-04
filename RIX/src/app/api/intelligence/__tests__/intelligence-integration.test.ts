@@ -85,8 +85,8 @@ describe('Intelligence API Integration Tests', () => {
     let POST: any;
 
     beforeAll(async () => {
-      const module = await import('../routine-coaching/route');
-      POST = module.POST;
+      const routineModule = await import('../routine-coaching/route');
+      POST = routineModule.POST;
     });
 
     it('should proxy routine coaching requests to Main Agent successfully', async () => {
@@ -226,8 +226,8 @@ describe('Intelligence API Integration Tests', () => {
     let POST: any;
 
     beforeAll(async () => {
-      const module = await import('../project-intelligence/route');
-      POST = module.POST;
+      const projectModule = await import('../project-intelligence/route');
+      POST = projectModule.POST;
     });
 
     it('should proxy project intelligence requests successfully', async () => {
@@ -319,8 +319,8 @@ describe('Intelligence API Integration Tests', () => {
     let POST: any;
 
     beforeAll(async () => {
-      const module = await import('../calendar-optimization/route');
-      POST = module.POST;
+      const calendarModule = await import('../calendar-optimization/route');
+      POST = calendarModule.POST;
     });
 
     it('should proxy calendar optimization requests successfully', async () => {
@@ -414,8 +414,8 @@ describe('Intelligence API Integration Tests', () => {
     let GET: any;
 
     beforeAll(async () => {
-      const module = await import('../metrics/route');
-      GET = module.GET;
+      const metricsModule = await import('../metrics/route');
+      GET = metricsModule.GET;
     });
 
     it('should aggregate metrics from knowledge and goals APIs', async () => {
@@ -485,8 +485,8 @@ describe('Intelligence API Integration Tests', () => {
     let GET: any;
 
     beforeAll(async () => {
-      const module = await import('../search/route');
-      GET = module.GET;
+      const searchModule = await import('../search/route');
+      GET = searchModule.GET;
     });
 
     it('should perform vector search with query parameters', async () => {
@@ -653,8 +653,8 @@ describe('Intelligence API Integration Tests', () => {
         });
 
         // Dynamically import the endpoint
-        const module = await import(`../${testCase.endpoint}/route`);
-        const { POST } = module;
+        const endpointModule = await import(`../${testCase.endpoint}/route`);
+        const { POST } = endpointModule;
 
         const request = new NextRequest(`http://localhost:3000/api/intelligence/${testCase.endpoint}`, {
           method: 'POST',

@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       const result = await client.query(query, [payload.userId]);
       
       // Transform to frontend format
-      const goals = result.rows.map(row => ({
+      const goals = result.rows.map((row: any) => ({
         id: row.id,
         title: row.title,
         description: row.description || '',

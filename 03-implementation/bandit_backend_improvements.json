@@ -1,0 +1,1037 @@
+{
+  "errors": [],
+  "generated_at": "2025-08-04T06:02:13Z",
+  "metrics": {
+    "_totals": {
+      "CONFIDENCE.HIGH": 45,
+      "CONFIDENCE.LOW": 1,
+      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 2,
+      "SEVERITY.LOW": 45,
+      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 3447,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "backend-improvements/database-optimization.py": {
+      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.LOW": 1,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 2,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 807,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "backend-improvements/enhanced-mock-responses.py": {
+      "CONFIDENCE.HIGH": 43,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 43,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 960,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "backend-improvements/error-handling.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 864,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "backend-improvements/intent-recognition.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 816,
+      "nosec": 0,
+      "skipped_tests": 0
+    }
+  },
+  "results": [
+    {
+      "code": "77         key_data = f\"{query}:{params}\"\n78         return hashlib.md5(key_data.encode()).hexdigest()\n79     \n",
+      "col_offset": 15,
+      "end_col_offset": 45,
+      "filename": "backend-improvements/database-optimization.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 327,
+        "link": "https://cwe.mitre.org/data/definitions/327.html"
+      },
+      "issue_severity": "HIGH",
+      "issue_text": "Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "line_number": 78,
+      "line_range": [
+        78
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b324_hashlib.html",
+      "test_id": "B324",
+      "test_name": "hashlib"
+    },
+    {
+      "code": "414         placeholders = \", \".join([f\"${i}\" for i in range(1, len(columns) + 1)])\n415         query = f\"\"\"\n416             INSERT INTO {table} ({\", \".join(columns)})\n417             VALUES ({placeholders})\n418             {conflict_resolution}\n419         \"\"\"\n420         \n",
+      "col_offset": 20,
+      "end_col_offset": 24,
+      "filename": "backend-improvements/database-optimization.py",
+      "issue_confidence": "LOW",
+      "issue_cwe": {
+        "id": 89,
+        "link": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible SQL injection vector through string-based query construction.",
+      "line_number": 415,
+      "line_range": [
+        415,
+        416,
+        417,
+        418,
+        419
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html",
+      "test_id": "B608",
+      "test_name": "hardcoded_sql_expressions"
+    },
+    {
+      "code": "585         \"\"\"Update query execution statistics\"\"\"\n586         query_hash = hashlib.md5(query.encode()).hexdigest()\n587         \n",
+      "col_offset": 21,
+      "end_col_offset": 48,
+      "filename": "backend-improvements/database-optimization.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 327,
+        "link": "https://cwe.mitre.org/data/definitions/327.html"
+      },
+      "issue_severity": "HIGH",
+      "issue_text": "Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "line_number": 586,
+      "line_range": [
+        586
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b324_hashlib.html",
+      "test_id": "B324",
+      "test_name": "hashlib"
+    },
+    {
+      "code": "114                 \"priority\": priority,\n115                 \"project_id\": random.choice(self.projects)[\"id\"] if random.random() > 0.2 else None,\n116                 \"assigned_to\": \"current_user\",\n",
+      "col_offset": 68,
+      "end_col_offset": 83,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 115,
+      "line_range": [
+        115
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "114                 \"priority\": priority,\n115                 \"project_id\": random.choice(self.projects)[\"id\"] if random.random() > 0.2 else None,\n116                 \"assigned_to\": \"current_user\",\n",
+      "col_offset": 30,
+      "end_col_offset": 58,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 115,
+      "line_range": [
+        115
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "116                 \"assigned_to\": \"current_user\",\n117                 \"created_at\": datetime.utcnow() - timedelta(days=random.randint(1, 30)),\n118                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 48)),\n",
+      "col_offset": 65,
+      "end_col_offset": 86,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 117,
+      "line_range": [
+        117
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "117                 \"created_at\": datetime.utcnow() - timedelta(days=random.randint(1, 30)),\n118                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 48)),\n119                 \"due_date\": datetime.utcnow() + timedelta(days=random.randint(-5, 20)) if random.random() > 0.3 else None,\n",
+      "col_offset": 66,
+      "end_col_offset": 87,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 118,
+      "line_range": [
+        118
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "118                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 48)),\n119                 \"due_date\": datetime.utcnow() + timedelta(days=random.randint(-5, 20)) if random.random() > 0.3 else None,\n120                 \"estimated_hours\": random.choice([1, 2, 4, 8, 16]),\n",
+      "col_offset": 90,
+      "end_col_offset": 105,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 119,
+      "line_range": [
+        119
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "118                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 48)),\n119                 \"due_date\": datetime.utcnow() + timedelta(days=random.randint(-5, 20)) if random.random() > 0.3 else None,\n120                 \"estimated_hours\": random.choice([1, 2, 4, 8, 16]),\n",
+      "col_offset": 63,
+      "end_col_offset": 85,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 119,
+      "line_range": [
+        119
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "119                 \"due_date\": datetime.utcnow() + timedelta(days=random.randint(-5, 20)) if random.random() > 0.3 else None,\n120                 \"estimated_hours\": random.choice([1, 2, 4, 8, 16]),\n121                 \"tags\": random.sample([\"frontend\", \"backend\", \"design\", \"testing\", \"documentation\", \"bug\", \"feature\"], k=random.randint(1, 3)),\n",
+      "col_offset": 35,
+      "end_col_offset": 66,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 120,
+      "line_range": [
+        120
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "120                 \"estimated_hours\": random.choice([1, 2, 4, 8, 16]),\n121                 \"tags\": random.sample([\"frontend\", \"backend\", \"design\", \"testing\", \"documentation\", \"bug\", \"feature\"], k=random.randint(1, 3)),\n122                 \"completion_percentage\": random.randint(0, 100) if status in [\"in_progress\", \"completed\"] else 0\n",
+      "col_offset": 24,
+      "end_col_offset": 142,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 121,
+      "line_range": [
+        121
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "120                 \"estimated_hours\": random.choice([1, 2, 4, 8, 16]),\n121                 \"tags\": random.sample([\"frontend\", \"backend\", \"design\", \"testing\", \"documentation\", \"bug\", \"feature\"], k=random.randint(1, 3)),\n122                 \"completion_percentage\": random.randint(0, 100) if status in [\"in_progress\", \"completed\"] else 0\n",
+      "col_offset": 121,
+      "end_col_offset": 141,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 121,
+      "line_range": [
+        121
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "121                 \"tags\": random.sample([\"frontend\", \"backend\", \"design\", \"testing\", \"documentation\", \"bug\", \"feature\"], k=random.randint(1, 3)),\n122                 \"completion_percentage\": random.randint(0, 100) if status in [\"in_progress\", \"completed\"] else 0\n123             }\n",
+      "col_offset": 41,
+      "end_col_offset": 63,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 122,
+      "line_range": [
+        122
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "160                 \"title\": f\"Chat Session {i + 1}\",\n161                 \"created_at\": datetime.utcnow() - timedelta(days=random.randint(0, 10)),\n162                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 24)),\n",
+      "col_offset": 65,
+      "end_col_offset": 86,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 161,
+      "line_range": [
+        161
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "161                 \"created_at\": datetime.utcnow() - timedelta(days=random.randint(0, 10)),\n162                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 24)),\n163                 \"message_count\": random.randint(5, 25),\n",
+      "col_offset": 66,
+      "end_col_offset": 87,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 162,
+      "line_range": [
+        162
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "162                 \"updated_at\": datetime.utcnow() - timedelta(hours=random.randint(1, 24)),\n163                 \"message_count\": random.randint(5, 25),\n164                 \"last_message\": self._generate_sample_message()\n",
+      "col_offset": 33,
+      "end_col_offset": 54,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 163,
+      "line_range": [
+        163
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "180         ]\n181         return random.choice(messages)\n182 \n",
+      "col_offset": 15,
+      "end_col_offset": 38,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 181,
+      "line_range": [
+        181
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "508             \"execution_id\": str(uuid.uuid4()),\n509             \"processing_time\": random.uniform(0.5, 2.0)\n510         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 509,
+      "line_range": [
+        509
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "521         # Get sample project\n522         project = random.choice(self.data_generator.projects)\n523         \n",
+      "col_offset": 18,
+      "end_col_offset": 61,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 522,
+      "line_range": [
+        522
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "568             \"execution_id\": str(uuid.uuid4()),\n569             \"processing_time\": random.uniform(0.8, 2.5)\n570         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 569,
+      "line_range": [
+        569
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "629             \"execution_id\": str(uuid.uuid4()),\n630             \"processing_time\": random.uniform(0.6, 1.8)\n631         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 630,
+      "line_range": [
+        630
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "670             \"execution_id\": str(uuid.uuid4()),\n671             \"processing_time\": random.uniform(1.0, 3.0)\n672         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 671,
+      "line_range": [
+        671
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "683         if action == \"routine_analysis\":\n684             completion_rate = random.randint(70, 95)\n685             best_habit = \"Morning Exercise\"\n",
+      "col_offset": 30,
+      "end_col_offset": 52,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 684,
+      "line_range": [
+        684
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "705             habit_name = \"meditation\"\n706             streak_days = random.randint(1, 30)\n707             \n",
+      "col_offset": 26,
+      "end_col_offset": 47,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 706,
+      "line_range": [
+        706
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "726             \"execution_id\": str(uuid.uuid4()),\n727             \"processing_time\": random.uniform(0.7, 2.2)\n728         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 727,
+      "line_range": [
+        727
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "764             \"execution_id\": str(uuid.uuid4()),\n765             \"processing_time\": random.uniform(1.2, 3.5)\n766         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 765,
+      "line_range": [
+        765
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "796             \"execution_id\": str(uuid.uuid4()),\n797             \"processing_time\": random.uniform(0.3, 1.0)\n798         }\n",
+      "col_offset": 31,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 797,
+      "line_range": [
+        797
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "876         \n877         transcription = random.choice(sample_transcriptions)\n878         confidence = random.uniform(0.85, 0.98)\n",
+      "col_offset": 24,
+      "end_col_offset": 60,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 877,
+      "line_range": [
+        877
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "877         transcription = random.choice(sample_transcriptions)\n878         confidence = random.uniform(0.85, 0.98)\n879         \n",
+      "col_offset": 21,
+      "end_col_offset": 47,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 878,
+      "line_range": [
+        878
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "887             \"audioFile\": f\"voice_note_{uuid.uuid4().hex[:8]}.wav\",\n888             \"processingTime\": random.uniform(1.0, 3.0),\n889             \"command\": {\n",
+      "col_offset": 30,
+      "end_col_offset": 54,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 888,
+      "line_range": [
+        888
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "894                 \"format\": format,\n895                 \"duration\": random.uniform(1.0, 5.0),\n896                 \"quality\": \"high\",\n",
+      "col_offset": 28,
+      "end_col_offset": 52,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 895,
+      "line_range": [
+        895
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1010             \"performance\": {\n1011                 \"loadTime\": random.uniform(0.8, 1.5),\n1012                 \"renderTime\": random.uniform(0.1, 0.3),\n",
+      "col_offset": 28,
+      "end_col_offset": 52,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1011,
+      "line_range": [
+        1011
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1011                 \"loadTime\": random.uniform(0.8, 1.5),\n1012                 \"renderTime\": random.uniform(0.1, 0.3),\n1013                 \"memoryUsage\": random.uniform(50, 120),\n",
+      "col_offset": 30,
+      "end_col_offset": 54,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1012,
+      "line_range": [
+        1012
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1012                 \"renderTime\": random.uniform(0.1, 0.3),\n1013                 \"memoryUsage\": random.uniform(50, 120),\n1014                 \"batteryImpact\": random.uniform(0.1, 0.5),\n",
+      "col_offset": 31,
+      "end_col_offset": 54,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1013,
+      "line_range": [
+        1013
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1013                 \"memoryUsage\": random.uniform(50, 120),\n1014                 \"batteryImpact\": random.uniform(0.1, 0.5),\n1015                 \"networkRequests\": random.randint(3, 8),\n",
+      "col_offset": 33,
+      "end_col_offset": 57,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1014,
+      "line_range": [
+        1014
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1014                 \"batteryImpact\": random.uniform(0.1, 0.5),\n1015                 \"networkRequests\": random.randint(3, 8),\n1016                 \"cacheHitRate\": random.uniform(0.7, 0.95)\n",
+      "col_offset": 35,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1015,
+      "line_range": [
+        1015
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1015                 \"networkRequests\": random.randint(3, 8),\n1016                 \"cacheHitRate\": random.uniform(0.7, 0.95)\n1017             },\n",
+      "col_offset": 32,
+      "end_col_offset": 57,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1016,
+      "line_range": [
+        1016
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1018             \"vitals\": {\n1019                 \"FCP\": random.uniform(0.8, 1.2), # First Contentful Paint\n1020                 \"LCP\": random.uniform(1.2, 2.5), # Largest Contentful Paint  \n",
+      "col_offset": 23,
+      "end_col_offset": 47,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1019,
+      "line_range": [
+        1019
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1019                 \"FCP\": random.uniform(0.8, 1.2), # First Contentful Paint\n1020                 \"LCP\": random.uniform(1.2, 2.5), # Largest Contentful Paint  \n1021                 \"FID\": random.uniform(10, 50),   # First Input Delay\n",
+      "col_offset": 23,
+      "end_col_offset": 47,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1020,
+      "line_range": [
+        1020
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1020                 \"LCP\": random.uniform(1.2, 2.5), # Largest Contentful Paint  \n1021                 \"FID\": random.uniform(10, 50),   # First Input Delay\n1022                 \"CLS\": random.uniform(0.05, 0.1) # Cumulative Layout Shift\n",
+      "col_offset": 23,
+      "end_col_offset": 45,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1021,
+      "line_range": [
+        1021
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1021                 \"FID\": random.uniform(10, 50),   # First Input Delay\n1022                 \"CLS\": random.uniform(0.05, 0.1) # Cumulative Layout Shift\n1023             },\n",
+      "col_offset": 23,
+      "end_col_offset": 48,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1022,
+      "line_range": [
+        1022
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1040                 \"date\": date.isoformat()[:10],\n1041                 \"messages\": random.randint(5, 25),\n1042                 \"tasks_created\": random.randint(0, 5),\n",
+      "col_offset": 28,
+      "end_col_offset": 49,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1041,
+      "line_range": [
+        1041
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1041                 \"messages\": random.randint(5, 25),\n1042                 \"tasks_created\": random.randint(0, 5),\n1043                 \"tasks_completed\": random.randint(0, 8), \n",
+      "col_offset": 33,
+      "end_col_offset": 53,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1042,
+      "line_range": [
+        1042
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1042                 \"tasks_created\": random.randint(0, 5),\n1043                 \"tasks_completed\": random.randint(0, 8), \n1044                 \"voice_commands\": random.randint(0, 10),\n",
+      "col_offset": 35,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1043,
+      "line_range": [
+        1043
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1043                 \"tasks_completed\": random.randint(0, 8), \n1044                 \"voice_commands\": random.randint(0, 10),\n1045                 \"session_duration\": random.randint(300, 3600) # seconds\n",
+      "col_offset": 34,
+      "end_col_offset": 55,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1044,
+      "line_range": [
+        1044
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "1044                 \"voice_commands\": random.randint(0, 10),\n1045                 \"session_duration\": random.randint(300, 3600) # seconds\n1046             })\n",
+      "col_offset": 36,
+      "end_col_offset": 61,
+      "filename": "backend-improvements/enhanced-mock-responses.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 330,
+        "link": "https://cwe.mitre.org/data/definitions/330.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "line_number": 1045,
+      "line_range": [
+        1045
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b311-random",
+      "test_id": "B311",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "26     AUTHENTICATION_FAILED = \"AUTH_001\"\n27     INVALID_TOKEN = \"AUTH_002\"\n28     TOKEN_EXPIRED = \"AUTH_003\"\n",
+      "col_offset": 20,
+      "end_col_offset": 30,
+      "filename": "backend-improvements/error-handling.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 259,
+        "link": "https://cwe.mitre.org/data/definitions/259.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'AUTH_002'",
+      "line_number": 27,
+      "line_range": [
+        27
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html",
+      "test_id": "B105",
+      "test_name": "hardcoded_password_string"
+    },
+    {
+      "code": "27     INVALID_TOKEN = \"AUTH_002\"\n28     TOKEN_EXPIRED = \"AUTH_003\"\n29     INSUFFICIENT_PERMISSIONS = \"AUTH_004\"\n",
+      "col_offset": 20,
+      "end_col_offset": 30,
+      "filename": "backend-improvements/error-handling.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 259,
+        "link": "https://cwe.mitre.org/data/definitions/259.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'AUTH_003'",
+      "line_number": 28,
+      "line_range": [
+        28
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html",
+      "test_id": "B105",
+      "test_name": "hardcoded_password_string"
+    }
+  ]
+}

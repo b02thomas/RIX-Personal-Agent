@@ -2,19 +2,19 @@
 RIX Main Agent - FastAPI Application
 """
 
+from contextlib import asynccontextmanager
+
+from app.api.endpoints import analytics, auth, calendar, chat, goals, health, intelligence, knowledge, n8n, routines, tasks
+from app.api.webhooks import n8n_webhooks
+from app.core.config import settings
+from app.core.database import database
+from app.core.logging import setup_logging
+from app.middleware.auth import JWTAuthMiddleware
+from app.services.mcp_router import mcp_router
+from app.services.websocket_manager import WebSocketManager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from contextlib import asynccontextmanager
-
-from app.core.config import settings
-from app.core.logging import setup_logging
-from app.api.endpoints import auth, chat, n8n, health, intelligence, tasks, calendar, routines, knowledge, goals, analytics
-from app.api.webhooks import n8n_webhooks
-from app.middleware.auth import JWTAuthMiddleware
-from app.services.websocket_manager import WebSocketManager
-from app.core.database import database
-from app.services.mcp_router import mcp_router
 
 # Initialize logging
 setup_logging()
@@ -106,14 +106,14 @@ async def root():
             "sub_agents_ready": False,
             "supported_workflows": [
                 "Task Intelligence Hub",
-                "Calendar Intelligence Hub", 
+                "Calendar Intelligence Hub",
                 "Routine Intelligence Hub",
                 "Knowledge Intelligence Hub",
                 "Goal Intelligence Hub",
                 "Behavioral Analytics Engine",
-                "Daily Intelligence Hub"
-            ]
-        }
+                "Daily Intelligence Hub",
+            ],
+        },
     }
 
 

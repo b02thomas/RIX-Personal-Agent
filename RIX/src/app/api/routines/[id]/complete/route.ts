@@ -370,7 +370,7 @@ export async function GET(
 
       const result = await client.query(query, params);
 
-      const completions = result.rows.map(row => ({
+      const completions = result.rows.map((row: any) => ({
         id: row.id,
         routineId: id,
         completionDate: row.completion_date,

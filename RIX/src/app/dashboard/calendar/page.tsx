@@ -17,9 +17,9 @@ import { useMobileOptimization } from '@/components/mobile/mobile-touch-optimize
 import { useHapticFeedback } from '@/hooks/use-haptic-feedback';
 import { useMobileGestures } from '@/hooks/use-mobile-gestures';
 import { CalendarAISidebar } from '@/components/intelligence/calendar-ai-sidebar';
-// Mobile components temporarily disabled for build fix
-// import { MobileFAB, getCalendarFABActions } from '@/components/mobile/mobile-fab';
-// import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
+// Mobile components for enhanced mobile experience
+import { MobileFAB } from '@/components/mobile/mobile-fab';
+import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
 
 // Dynamic icon imports for performance optimization
 const Icons = {
@@ -265,6 +265,28 @@ export default function CalendarPage() {
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
     }
   };
+
+  // Mobile helper function for FAB actions
+  const getCalendarFABActions = (
+    onCreateEvent: () => void,
+    onQuickTimeBlock: () => void,
+    onQuickReminder: () => void
+  ) => [
+    {
+      id: 'create',
+      label: 'New Event',
+      icon: PlusIcon,
+      onClick: onCreateEvent,
+      color: 'primary' as const
+    },
+    {
+      id: 'timeblock',
+      label: 'Time Block',
+      icon: ClockIcon,
+      onClick: onQuickTimeBlock,
+      color: 'secondary' as const
+    }
+  ];
 
   const filteredEvents = filter === 'all'
     ? events

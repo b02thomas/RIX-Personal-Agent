@@ -16,10 +16,10 @@ import { useAuthStore } from '@/store/auth-store';
 import { useMobileOptimization } from '@/components/mobile/mobile-touch-optimizer';
 import { useHapticFeedback } from '@/hooks/use-haptic-feedback';
 import { useMobileGestures } from '@/hooks/use-mobile-gestures';
-// Mobile components temporarily disabled for build fix
-// import { MobileSwipeCard, getProjectActions } from '@/components/mobile/mobile-swipe-card';
-// import { MobileFAB, getProjectFABActions } from '@/components/mobile/mobile-fab';
-// import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
+// Mobile components for enhanced mobile experience
+import { MobileSwipeCard } from '@/components/mobile/mobile-swipe-card';
+import { MobileFAB } from '@/components/mobile/mobile-fab';
+import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
 import dynamic from 'next/dynamic';
 
 // Dynamic icon imports for performance optimization
@@ -258,6 +258,61 @@ export default function ProjectsPage() {
   const completedProjects = projects.filter(p => p.status === 'completed').length;
   const averageHealthScore = totalProjects > 0 ? Math.round(projects.reduce((sum, p) => sum + p.aiHealthScore, 0) / totalProjects) : 0;
 
+  // Mobile helper functions for swipe actions and FAB
+  const getProjectActions = (
+    onStar: () => void,
+    onEdit: () => void,
+    onArchive: () => void,
+    onDelete: () => void
+  ) => ({
+    left: [
+      {
+        id: 'star',
+        label: 'Star',
+        icon: Icons.Star,
+        color: 'yellow' as const,
+        action: onStar
+      },
+      {
+        id: 'edit',
+        label: 'Edit',
+        icon: Icons.Settings,
+        color: 'blue' as const,
+        action: onEdit
+      }
+    ],
+    right: [
+      {
+        id: 'archive',
+        label: 'Archive',
+        icon: Icons.Archive,
+        color: 'gray' as const,
+        action: onArchive
+      }
+    ]
+  });
+
+  const getProjectFABActions = (
+    onCreateProject: () => void,
+    onCreateTask: () => void,
+    onQuickNote: () => void
+  ) => [
+    {
+      id: 'create',
+      label: 'New Project',
+      icon: Icons.Plus,
+      onClick: onCreateProject,
+      color: 'primary' as const
+    },
+    {
+      id: 'task',
+      label: 'Create Task',
+      icon: Icons.Target,
+      onClick: onCreateTask,
+      color: 'secondary' as const
+    }
+  ];
+
   if (!mounted || loading) {
     return (
       <div className="space-y-6">
@@ -284,7 +339,7 @@ export default function ProjectsPage() {
     );
   }
 
-  return (
+  const ProjectsContent = (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">

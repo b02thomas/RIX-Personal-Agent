@@ -13,7 +13,8 @@ from unittest.mock import Mock, AsyncMock, patch, MagicMock
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app"))
+# Add main-agent directory to Python path so we can import 'app' module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.services.ai_workflow_intelligence import AIWorkflowIntelligence, IntelligenceInsight, ai_workflow_intelligence
 from app.models.chat import WorkflowType, MessageType

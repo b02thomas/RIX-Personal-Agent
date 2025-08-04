@@ -2,15 +2,17 @@
 N8N integration models for RIX Main Agent
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
-from app.models.chat import WorkflowType, MessageType
+from typing import Any, Dict, List, Optional, Union
+
+from app.models.chat import MessageType, WorkflowType
+from pydantic import BaseModel, Field
 
 
 class ExecutionStatus(str, Enum):
     """N8N execution status"""
+
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -20,6 +22,7 @@ class ExecutionStatus(str, Enum):
 
 class N8NWorkflowRequest(BaseModel):
     """Request model for N8N workflow execution"""
+
     workflow_type: WorkflowType = Field(..., description="Type of workflow to execute")
     user_id: str = Field(..., description="User ID")
     conversation_id: Optional[str] = Field(None, description="Conversation ID")
@@ -29,6 +32,7 @@ class N8NWorkflowRequest(BaseModel):
 
 class N8NWorkflowResponse(BaseModel):
     """Response model from N8N workflow"""
+
     conversation_id: str = Field(..., description="Conversation ID")
     user_id: str = Field(..., description="User ID")
     response: str = Field(..., description="Workflow response")
@@ -41,6 +45,7 @@ class N8NWorkflowResponse(BaseModel):
 
 class N8NExecutionInfo(BaseModel):
     """N8N execution information"""
+
     id: str = Field(..., description="Execution ID")
     workflow_id: str = Field(..., description="Workflow ID")
     workflow_name: str = Field(..., description="Workflow name")
@@ -56,6 +61,7 @@ class N8NExecutionInfo(BaseModel):
 
 class N8NWorkflowInfo(BaseModel):
     """N8N workflow information"""
+
     id: str = Field(..., description="Workflow ID")
     name: str = Field(..., description="Workflow name")
     active: bool = Field(..., description="Whether workflow is active")
@@ -67,6 +73,7 @@ class N8NWorkflowInfo(BaseModel):
 
 class N8NWebhookData(BaseModel):
     """Data received from N8N webhook"""
+
     workflow_type: WorkflowType = Field(..., description="Workflow type")
     execution_id: str = Field(..., description="Execution ID")
     user_id: str = Field(..., description="User ID")
@@ -80,6 +87,7 @@ class N8NWebhookData(BaseModel):
 
 class N8NStatusResponse(BaseModel):
     """N8N service status response"""
+
     available: bool = Field(..., description="Whether N8N service is available")
     response_time: Optional[float] = Field(None, description="Response time in seconds")
     active_workflows: int = Field(default=0, description="Number of active workflows")
@@ -90,6 +98,7 @@ class N8NStatusResponse(BaseModel):
 
 class WebhookValidationRequest(BaseModel):
     """Webhook validation request"""
+
     signature: Optional[str] = Field(None, description="Webhook signature")
     timestamp: Optional[str] = Field(None, description="Request timestamp")
     payload: Dict[str, Any] = Field(..., description="Webhook payload")
@@ -97,6 +106,7 @@ class WebhookValidationRequest(BaseModel):
 
 class WorkflowTriggerRequest(BaseModel):
     """Manual workflow trigger request"""
+
     workflow_type: WorkflowType = Field(..., description="Workflow to trigger")
     input_data: Dict[str, Any] = Field(..., description="Input data")
     user_id: str = Field(..., description="User ID")
@@ -106,6 +116,7 @@ class WorkflowTriggerRequest(BaseModel):
 
 class WorkflowTriggerResponse(BaseModel):
     """Workflow trigger response"""
+
     execution_id: str = Field(..., description="Execution ID")
     status: ExecutionStatus = Field(..., description="Initial execution status")
     message: str = Field(..., description="Response message")
@@ -114,6 +125,7 @@ class WorkflowTriggerResponse(BaseModel):
 
 class WorkflowDiscoveryRequest(BaseModel):
     """Request for workflow discovery"""
+
     category: Optional[str] = Field(None, description="Filter by category")
     active_only: bool = Field(default=True, description="Include only active workflows")
     include_metrics: bool = Field(default=False, description="Include performance metrics")
@@ -121,6 +133,7 @@ class WorkflowDiscoveryRequest(BaseModel):
 
 class WorkflowActivationRequest(BaseModel):
     """Request to activate/deactivate workflow"""
+
     workflow_id: str = Field(..., description="Workflow ID to activate/deactivate")
     active: bool = Field(..., description="Target activation status")
     reason: Optional[str] = Field(None, description="Reason for status change")
@@ -128,6 +141,7 @@ class WorkflowActivationRequest(BaseModel):
 
 class WorkflowActivationResponse(BaseModel):
     """Response to workflow activation request"""
+
     workflow_id: str = Field(..., description="Workflow ID")
     previous_status: bool = Field(..., description="Previous activation status")
     new_status: bool = Field(..., description="New activation status")
@@ -137,6 +151,7 @@ class WorkflowActivationResponse(BaseModel):
 
 class AITriggeredExecutionRequest(BaseModel):
     """Request for AI-triggered workflow execution"""
+
     workflow_type: WorkflowType = Field(..., description="Workflow type to execute")
     user_id: str = Field(..., description="User ID")
     conversation_id: Optional[str] = Field(None, description="Conversation ID")
@@ -147,6 +162,7 @@ class AITriggeredExecutionRequest(BaseModel):
 
 class WorkflowCategoryInfo(BaseModel):
     """Information about workflow categories"""
+
     category: str = Field(..., description="Category name")
     workflow_count: int = Field(..., description="Number of workflows in category")
     active_count: int = Field(..., description="Number of active workflows")
@@ -156,6 +172,7 @@ class WorkflowCategoryInfo(BaseModel):
 
 class WorkflowPerformanceMetrics(BaseModel):
     """Workflow performance metrics"""
+
     workflow_id: str = Field(..., description="Workflow ID")
     execution_count: int = Field(default=0, description="Total executions")
     ai_triggered_count: int = Field(default=0, description="AI-triggered executions")
@@ -167,6 +184,7 @@ class WorkflowPerformanceMetrics(BaseModel):
 
 class WorkflowAnalyticsResponse(BaseModel):
     """Workflow analytics response"""
+
     summary: Dict[str, Any] = Field(..., description="Overall analytics summary")
     categories: List[WorkflowCategoryInfo] = Field(default_factory=list, description="Category breakdown")
     top_performers: List[WorkflowPerformanceMetrics] = Field(default_factory=list, description="Top performing workflows")
@@ -177,6 +195,7 @@ class WorkflowAnalyticsResponse(BaseModel):
 
 class WorkflowSyncRequest(BaseModel):
     """Request to sync workflows from N8N instance"""
+
     force_refresh: bool = Field(default=False, description="Force refresh from N8N API")
     update_metadata: bool = Field(default=True, description="Update workflow metadata")
     categorize_workflows: bool = Field(default=True, description="Auto-categorize workflows")
@@ -184,6 +203,7 @@ class WorkflowSyncRequest(BaseModel):
 
 class WorkflowSyncResponse(BaseModel):
     """Response from workflow sync operation"""
+
     synced_count: int = Field(..., description="Number of workflows synced")
     updated_count: int = Field(..., description="Number of workflows updated")
     new_count: int = Field(..., description="Number of new workflows discovered")

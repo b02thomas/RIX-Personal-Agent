@@ -16,10 +16,10 @@ import { useMobileOptimization } from '@/components/mobile/mobile-touch-optimize
 import { useHapticFeedback } from '@/hooks/use-haptic-feedback';
 import { useMobileGestures } from '@/hooks/use-mobile-gestures';
 import { AICoachingCard } from '@/components/intelligence/ai-coaching-card';
-// Mobile components temporarily disabled for build fix
-// import { MobileSwipeCard, getRoutineActions } from '@/components/mobile/mobile-swipe-card';
-// import { MobileFAB, getRoutineFABActions } from '@/components/mobile/mobile-fab';
-// import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
+// Mobile components for enhanced mobile experience
+import { MobileSwipeCard } from '@/components/mobile/mobile-swipe-card';
+import { MobileFAB } from '@/components/mobile/mobile-fab';
+import { MobilePullRefresh } from '@/components/mobile/mobile-pull-refresh';
 import dynamic from 'next/dynamic';
 
 // Dynamic icon imports for performance optimization
@@ -37,7 +37,10 @@ const Icons = {
   Book: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Book })), { ssr: false }),
   Dumbbell: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Dumbbell })), { ssr: false }),
   Brain: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Brain })), { ssr: false }),
-  X: dynamic(() => import('lucide-react').then(mod => ({ default: mod.X })), { ssr: false })
+  X: dynamic(() => import('lucide-react').then(mod => ({ default: mod.X })), { ssr: false }),
+  Check: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Check })), { ssr: false }),
+  Settings: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Settings })), { ssr: false }),
+  Pause: dynamic(() => import('lucide-react').then(mod => ({ default: mod.Pause })), { ssr: false })
 };
 
 interface Habit {
@@ -308,6 +311,53 @@ export default function RoutinesPage() {
   const averageStreak = totalRoutines > 0 ? Math.round(routines.reduce((sum, r) => sum + (r.streak || 0), 0) / totalRoutines) : 0;
   const totalTime = routines.filter(r => r.completedToday).reduce((sum, r) => sum + r.durationMinutes, 0);
 
+  // Mobile helper functions for swipe actions and FAB
+  const getRoutineActions = (
+    onComplete: () => void,
+    onEdit: () => void,
+    onPause: () => void,
+    onDelete: () => void
+  ) => ({
+    left: [
+      {
+        id: 'complete',
+        label: 'Complete',
+        icon: Icons.Check,
+        color: 'green' as const,
+        action: onComplete
+      },
+      {
+        id: 'edit',
+        label: 'Edit',
+        icon: Icons.Settings,
+        color: 'blue' as const,
+        action: onEdit
+      }
+    ],
+    right: [
+      {
+        id: 'pause',
+        label: 'Pause',
+        icon: Icons.Pause,
+        color: 'yellow' as const,
+        action: onPause
+      }
+    ]
+  });
+
+  const getRoutineFABActions = (
+    onCreateRoutine: () => void,
+    onRefresh: () => void
+  ) => [
+    {
+      id: 'create',
+      label: 'New Routine',
+      icon: Icons.Plus,
+      onClick: onCreateRoutine,
+      color: 'primary' as const
+    }
+  ];
+
   if (!mounted || loading) {
     return (
       <div className="space-y-6">
@@ -334,7 +384,7 @@ export default function RoutinesPage() {
     );
   }
 
-  return (
+  const RoutinesContent = (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -494,8 +544,12 @@ export default function RoutinesPage() {
                 console.log('Edit routine:', routine.id);
               },
               () => {
-                // TODO: Implement star functionality
-                console.log('Star routine:', routine.id);
+                // TODO: Implement pause functionality
+                console.log('Pause routine:', routine.id);
+              },
+              () => {
+                // TODO: Implement delete functionality
+                console.log('Delete routine:', routine.id);
               }
             ) : { left: [], right: [] };
             

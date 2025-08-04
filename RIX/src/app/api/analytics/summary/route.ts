@@ -200,7 +200,7 @@ export async function GET(request: NextRequest) {
       }
       
       // Add routine-specific insights for top performers
-      topRoutinesResult.rows.slice(0, 2).forEach(routine => {
+      topRoutinesResult.rows.slice(0, 2).forEach((routine: any) => {
         if (routine.avg_completion >= 95) {
           insights.push({
             type: 'achievement',
@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
       // Calculate trend directions
       const trendData = trendDirectionResult.rows[0];
       let last7DaysTrend: 'up' | 'down' | 'stable' = 'stable';
-      let last30DaysTrend: 'up' | 'down' | 'stable' = 'stable';
+      const last30DaysTrend: 'up' | 'down' | 'stable' = 'stable';
       
       if (trendData) {
         const recentCompletion = trendData.recent_completion || 0;
@@ -251,7 +251,7 @@ export async function GET(request: NextRequest) {
             trendDirection: last30DaysTrend
           }
         },
-        topPerformingRoutines: topRoutinesResult.rows.map(row => ({
+        topPerformingRoutines: topRoutinesResult.rows.map((row: any) => ({
           routineId: row.routine_id,
           routineName: row.routine_name || 'Unknown Routine',
           averageCompletion: parseFloat(row.avg_completion),

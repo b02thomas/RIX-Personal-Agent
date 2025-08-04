@@ -3,20 +3,24 @@
 # Direct API endpoints with future MCP compatibility
 # RELEVANT FILES: services/core_apis.py, models/schemas.py, core/database.py
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Path
-from typing import List, Optional
-import uuid
 import logging
+import uuid
+from typing import List, Optional
 
-from app.models.schemas import (
-    # Knowledge models
-    KnowledgeEntry, KnowledgeEntryCreate, KnowledgeEntryUpdate,
-    KnowledgeSearchRequest, KnowledgeSearchResult,
-    # Response models
-    APIResponse, PaginatedResponse, PaginationParams
+from app.middleware.auth import get_current_user
+from app.models.schemas import (  # Knowledge models; Response models
+    APIResponse,
+    KnowledgeEntry,
+    KnowledgeEntryCreate,
+    KnowledgeEntryUpdate,
+    KnowledgeSearchRequest,
+    KnowledgeSearchResult,
+    PaginatedResponse,
+    PaginationParams,
 )
 from app.services.core_apis import core_api_service
-from app.middleware.auth import get_current_user
+from app.utils.secure_query_builder import SecureQueryBuilder
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -24,17 +28,12 @@ logger = logging.getLogger(__name__)
 
 # ==================== KNOWLEDGE ENTRY ENDPOINTS ====================
 
+
 @router.post("/entries", response_model=KnowledgeEntry)
-async def create_knowledge_entry(
-    entry_data: KnowledgeEntryCreate,
-    current_user: dict = Depends(get_current_user)
-):
+async def create_knowledge_entry(entry_data: KnowledgeEntryCreate, current_user: dict = Depends(get_current_user)):
     """Create a new knowledge entry for Knowledge Intelligence Hub"""
     try:
-        entry = await core_api_service.create_knowledge_entry(
-            user_id=current_user["user_id"],
-            entry_data=entry_data
-        )
+        entry = await core_api_service.create_knowledge_entry(user_id=current_user["user_id"], entry_data=entry_data)
         return entry
     except Exception as e:
         logger.error(f"Error creating knowledge entry: {e}")
@@ -49,47 +48,50 @@ async def get_knowledge_entries(
     entry_type: Optional[str] = Query(None),
     tags: Optional[str] = Query(None, description="Comma-separated tags"),
     order_by: Optional[str] = Query("created_at DESC"),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Get paginated knowledge entries with filters"""
     try:
-        # Build query with filters
-        where_conditions = ["user_id = $1"]
-        params = [uuid.UUID(current_user["user_id"])]
-        param_count = 2
-        
+        # Build secure query with filters using SecureQueryBuilder
+        where_conditions = {"user_id": uuid.UUID(current_user["user_id"])}
+
         if category:
-            where_conditions.append(f"category = ${param_count}")
-            params.append(category)
-            param_count += 1
-            
+            where_conditions["category"] = category
+
         if entry_type:
-            where_conditions.append(f"entry_type = ${param_count}")
-            params.append(entry_type)
-            param_count += 1
-            
+            where_conditions["entry_type"] = entry_type
+
+        # Build base WHERE clause using SecureQueryBuilder
+        where_clause, base_params = SecureQueryBuilder.build_where_conditions("knowledge_entries", where_conditions)
+
+        # Handle tags separately as it requires array operators
+        params = base_params[:]
+        param_count = len(params) + 1
+
         if tags:
             tag_list = [tag.strip() for tag in tags.split(",")]
-            where_conditions.append(f"tags && ${param_count}")
+            if where_clause:
+                where_clause += f" AND tags && ${param_count}"
+            else:
+                where_clause = f"tags && ${param_count}"
             params.append(tag_list)
-            param_count += 1
-        
-        where_clause = " AND ".join(where_conditions)
+
+        # Build final queries securely
         base_query = f"SELECT * FROM knowledge_entries WHERE {where_clause}"
         count_query = f"SELECT COUNT(*) FROM knowledge_entries WHERE {where_clause}"
-        
+
         result = await core_api_service.database.fetch_with_pagination(
             base_query=base_query,
             count_query=count_query,
             params=tuple(params),
             page=page,
             page_size=page_size,
-            order_by=order_by
+            order_by=order_by,
         )
-        
+
         # Convert items to KnowledgeEntry models
-        result['items'] = [KnowledgeEntry(**item) for item in result['items']]
-        
+        result["items"] = [KnowledgeEntry(**item) for item in result["items"]]
+
         return PaginatedResponse(**result)
     except Exception as e:
         logger.error(f"Error fetching knowledge entries: {e}")
@@ -97,21 +99,19 @@ async def get_knowledge_entries(
 
 
 @router.get("/entries/{entry_id}", response_model=KnowledgeEntry)
-async def get_knowledge_entry(
-    entry_id: str = Path(...),
-    current_user: dict = Depends(get_current_user)
-):
+async def get_knowledge_entry(entry_id: str = Path(...), current_user: dict = Depends(get_current_user)):
     """Get specific knowledge entry by ID"""
     try:
         entry = await core_api_service.database.execute(
             "SELECT * FROM knowledge_entries WHERE id = $1 AND user_id = $2",
-            uuid.UUID(entry_id), uuid.UUID(current_user["user_id"]),
-            fetch_one=True
+            uuid.UUID(entry_id),
+            uuid.UUID(current_user["user_id"]),
+            fetch_one=True,
         )
-        
+
         if not entry:
             raise HTTPException(status_code=404, detail="Knowledge entry not found")
-            
+
         return KnowledgeEntry(**entry)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
@@ -122,54 +122,41 @@ async def get_knowledge_entry(
 
 @router.put("/entries/{entry_id}", response_model=KnowledgeEntry)
 async def update_knowledge_entry(
-    entry_id: str = Path(...),
-    update_data: KnowledgeEntryUpdate = ...,
-    current_user: dict = Depends(get_current_user)
+    entry_id: str = Path(...), update_data: KnowledgeEntryUpdate = ..., current_user: dict = Depends(get_current_user)
 ):
     """Update knowledge entry"""
     try:
         import json
-        
-        # Build dynamic UPDATE query
-        updates = []
-        params = []
-        param_count = 1
-        
+
+        # Prepare update fields with proper handling for special types
+        update_fields = {}
+
         for field, value in update_data.dict(exclude_unset=True).items():
             if value is not None:
-                if field == 'metadata':
-                    updates.append(f"{field} = ${param_count}")
-                    params.append(json.dumps(value))
-                elif field == 'related_entries':
+                if field == "metadata":
+                    # JSON fields need special handling
+                    update_fields[field] = json.dumps(value)
+                elif field == "related_entries":
                     # Convert UUID list to strings for database
-                    updates.append(f"{field} = ${param_count}")
-                    params.append([str(uuid_val) for uuid_val in value])
+                    update_fields[field] = [str(uuid_val) for uuid_val in value]
                 else:
-                    updates.append(f"{field} = ${param_count}")
-                    params.append(value)
-                param_count += 1
-        
-        if not updates:
+                    update_fields[field] = value
+
+        if not update_fields:
             raise HTTPException(status_code=400, detail="No fields to update")
-        
-        # Add timestamp and conditions
-        updates.append(f"updated_at = NOW()")
-        params.extend([uuid.UUID(current_user["user_id"]), uuid.UUID(entry_id)])
-        
-        query = f"""
-            UPDATE knowledge_entries 
-            SET {', '.join(updates)}
-            WHERE user_id = ${param_count} AND id = ${param_count + 1}
-            RETURNING *
-        """
-        
-        result = await core_api_service.database.execute(
-            query, *params, fetch_one=True
+
+        # Build secure query using SecureQueryBuilder
+        where_conditions = {"user_id": uuid.UUID(current_user["user_id"]), "id": uuid.UUID(entry_id)}
+
+        query, params = SecureQueryBuilder.build_update_query(
+            table_name="knowledge_entries", update_fields=update_fields, where_conditions=where_conditions, add_updated_at=True
         )
-        
+
+        result = await core_api_service.database.execute(query, *params, fetch_one=True)
+
         if not result:
             raise HTTPException(status_code=404, detail="Knowledge entry not found")
-            
+
         return KnowledgeEntry(**result)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
@@ -179,24 +166,19 @@ async def update_knowledge_entry(
 
 
 @router.delete("/entries/{entry_id}", response_model=APIResponse)
-async def delete_knowledge_entry(
-    entry_id: str = Path(...),
-    current_user: dict = Depends(get_current_user)
-):
+async def delete_knowledge_entry(entry_id: str = Path(...), current_user: dict = Depends(get_current_user)):
     """Delete knowledge entry"""
     try:
         result = await core_api_service.database.execute(
             "DELETE FROM knowledge_entries WHERE user_id = $1 AND id = $2",
-            uuid.UUID(current_user["user_id"]), uuid.UUID(entry_id)
+            uuid.UUID(current_user["user_id"]),
+            uuid.UUID(entry_id),
         )
-        
+
         if "DELETE 0" in str(result):
             raise HTTPException(status_code=404, detail="Knowledge entry not found")
-            
-        return APIResponse(
-            success=True,
-            message="Knowledge entry deleted successfully"
-        )
+
+        return APIResponse(success=True, message="Knowledge entry deleted successfully")
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
     except Exception as e:
@@ -206,23 +188,16 @@ async def delete_knowledge_entry(
 
 # ==================== SEARCH ENDPOINTS ====================
 
+
 @router.post("/search")
-async def search_knowledge_entries(
-    search_request: KnowledgeSearchRequest,
-    current_user: dict = Depends(get_current_user)
-):
+async def search_knowledge_entries(search_request: KnowledgeSearchRequest, current_user: dict = Depends(get_current_user)):
     """Search knowledge entries (text-based for now, vector search with future Sub-Agent)"""
     try:
         results = await core_api_service.search_knowledge_entries(
-            user_id=current_user["user_id"],
-            search_request=search_request
+            user_id=current_user["user_id"], search_request=search_request
         )
-        
-        return {
-            "query": search_request.query,
-            "total_results": len(results),
-            "results": results
-        }
+
+        return {"query": search_request.query, "total_results": len(results), "results": results}
     except Exception as e:
         logger.error(f"Error searching knowledge entries: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -235,28 +210,19 @@ async def search_knowledge_entries_get(
     category: Optional[str] = Query(None),
     entry_type: Optional[str] = Query(None),
     similarity_threshold: float = Query(0.7, ge=0.0, le=1.0),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Search knowledge entries via GET (for easy URL sharing)"""
     try:
         search_request = KnowledgeSearchRequest(
-            query=q,
-            limit=limit,
-            category=category,
-            entry_type=entry_type,
-            similarity_threshold=similarity_threshold
+            query=q, limit=limit, category=category, entry_type=entry_type, similarity_threshold=similarity_threshold
         )
-        
+
         results = await core_api_service.search_knowledge_entries(
-            user_id=current_user["user_id"],
-            search_request=search_request
+            user_id=current_user["user_id"], search_request=search_request
         )
-        
-        return {
-            "query": q,
-            "total_results": len(results),
-            "results": results
-        }
+
+        return {"query": q, "total_results": len(results), "results": results}
     except Exception as e:
         logger.error(f"Error searching knowledge entries: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -264,10 +230,9 @@ async def search_knowledge_entries_get(
 
 # ==================== KNOWLEDGE ANALYTICS ====================
 
+
 @router.get("/analytics/summary")
-async def get_knowledge_analytics_summary(
-    current_user: dict = Depends(get_current_user)
-):
+async def get_knowledge_analytics_summary(current_user: dict = Depends(get_current_user)):
     """Get knowledge base analytics summary"""
     try:
         # Get knowledge statistics
@@ -285,9 +250,9 @@ async def get_knowledge_analytics_summary(
             WHERE user_id = $1
             """,
             uuid.UUID(current_user["user_id"]),
-            fetch_one=True
+            fetch_one=True,
         )
-        
+
         # Get category breakdown
         category_breakdown = await core_api_service.database.execute(
             """
@@ -302,9 +267,9 @@ async def get_knowledge_analytics_summary(
             LIMIT 10
             """,
             uuid.UUID(current_user["user_id"]),
-            fetch=True
+            fetch=True,
         )
-        
+
         # Get entry type breakdown
         type_breakdown = await core_api_service.database.execute(
             """
@@ -318,9 +283,9 @@ async def get_knowledge_analytics_summary(
             ORDER BY count DESC
             """,
             uuid.UUID(current_user["user_id"]),
-            fetch=True
+            fetch=True,
         )
-        
+
         # Get most used tags
         popular_tags = await core_api_service.database.execute(
             """
@@ -334,42 +299,36 @@ async def get_knowledge_analytics_summary(
             LIMIT 10
             """,
             uuid.UUID(current_user["user_id"]),
-            fetch=True
+            fetch=True,
         )
-        
+
         return {
             "summary": {
-                "total_entries": stats['total_entries'],
-                "categories_count": stats['categories_count'],
-                "entry_types_count": stats['entry_types_count'],
-                "avg_importance_score": float(stats['avg_importance']) if stats['avg_importance'] else 0,
-                "avg_confidence_score": float(stats['avg_confidence']) if stats['avg_confidence'] else 0,
-                "recent_entries_30d": stats['recent_entries'],
-                "entries_with_sources": stats['entries_with_sources']
+                "total_entries": stats["total_entries"],
+                "categories_count": stats["categories_count"],
+                "entry_types_count": stats["entry_types_count"],
+                "avg_importance_score": float(stats["avg_importance"]) if stats["avg_importance"] else 0,
+                "avg_confidence_score": float(stats["avg_confidence"]) if stats["avg_confidence"] else 0,
+                "recent_entries_30d": stats["recent_entries"],
+                "entries_with_sources": stats["entries_with_sources"],
             },
             "category_breakdown": [
                 {
-                    "category": cat['category'],
-                    "count": cat['count'],
-                    "avg_importance": float(cat['avg_importance']) if cat['avg_importance'] else 0
+                    "category": cat["category"],
+                    "count": cat["count"],
+                    "avg_importance": float(cat["avg_importance"]) if cat["avg_importance"] else 0,
                 }
                 for cat in category_breakdown
             ],
             "type_breakdown": [
                 {
-                    "entry_type": type_entry['entry_type'],
-                    "count": type_entry['count'],
-                    "avg_confidence": float(type_entry['avg_confidence']) if type_entry['avg_confidence'] else 0
+                    "entry_type": type_entry["entry_type"],
+                    "count": type_entry["count"],
+                    "avg_confidence": float(type_entry["avg_confidence"]) if type_entry["avg_confidence"] else 0,
                 }
                 for type_entry in type_breakdown
             ],
-            "popular_tags": [
-                {
-                    "tag": tag['tag'],
-                    "usage_count": tag['usage_count']
-                }
-                for tag in popular_tags
-            ]
+            "popular_tags": [{"tag": tag["tag"], "usage_count": tag["usage_count"]} for tag in popular_tags],
         }
     except Exception as e:
         logger.error(f"Error generating knowledge analytics: {e}")
@@ -377,9 +336,7 @@ async def get_knowledge_analytics_summary(
 
 
 @router.get("/categories")
-async def get_knowledge_categories(
-    current_user: dict = Depends(get_current_user)
-):
+async def get_knowledge_categories(current_user: dict = Depends(get_current_user)):
     """Get all knowledge categories with counts"""
     try:
         categories = await core_api_service.database.execute(
@@ -395,20 +352,20 @@ async def get_knowledge_categories(
             ORDER BY entry_count DESC
             """,
             uuid.UUID(current_user["user_id"]),
-            fetch=True
+            fetch=True,
         )
-        
+
         return {
             "total_categories": len(categories),
             "categories": [
                 {
-                    "name": cat['category'],
-                    "entry_count": cat['entry_count'],
-                    "avg_importance": float(cat['avg_importance']) if cat['avg_importance'] else 0,
-                    "last_updated": cat['last_updated'].isoformat() if cat['last_updated'] else None
+                    "name": cat["category"],
+                    "entry_count": cat["entry_count"],
+                    "avg_importance": float(cat["avg_importance"]) if cat["avg_importance"] else 0,
+                    "last_updated": cat["last_updated"].isoformat() if cat["last_updated"] else None,
                 }
                 for cat in categories
-            ]
+            ],
         }
     except Exception as e:
         logger.error(f"Error fetching knowledge categories: {e}")
@@ -416,10 +373,7 @@ async def get_knowledge_categories(
 
 
 @router.get("/tags")
-async def get_knowledge_tags(
-    min_usage: int = Query(1, ge=1),
-    current_user: dict = Depends(get_current_user)
-):
+async def get_knowledge_tags(min_usage: int = Query(1, ge=1), current_user: dict = Depends(get_current_user)):
     """Get all knowledge tags with usage counts"""
     try:
         tags = await core_api_service.database.execute(
@@ -434,20 +388,21 @@ async def get_knowledge_tags(
             HAVING COUNT(*) >= $2
             ORDER BY usage_count DESC
             """,
-            uuid.UUID(current_user["user_id"]), min_usage,
-            fetch=True
+            uuid.UUID(current_user["user_id"]),
+            min_usage,
+            fetch=True,
         )
-        
+
         return {
             "total_tags": len(tags),
             "tags": [
                 {
-                    "name": tag['tag'],
-                    "usage_count": tag['usage_count'],
-                    "avg_importance": float(tag['avg_importance']) if tag['avg_importance'] else 0
+                    "name": tag["tag"],
+                    "usage_count": tag["usage_count"],
+                    "avg_importance": float(tag["avg_importance"]) if tag["avg_importance"] else 0,
                 }
                 for tag in tags
-            ]
+            ],
         }
     except Exception as e:
         logger.error(f"Error fetching knowledge tags: {e}")
@@ -456,28 +411,28 @@ async def get_knowledge_tags(
 
 # ==================== KNOWLEDGE RELATIONSHIPS ====================
 
+
 @router.get("/entries/{entry_id}/related")
 async def get_related_entries(
-    entry_id: str = Path(...),
-    limit: int = Query(10, ge=1, le=50),
-    current_user: dict = Depends(get_current_user)
+    entry_id: str = Path(...), limit: int = Query(10, ge=1, le=50), current_user: dict = Depends(get_current_user)
 ):
     """Get related knowledge entries"""
     try:
         # First, get the entry to check ownership
         entry = await core_api_service.database.execute(
             "SELECT * FROM knowledge_entries WHERE id = $1 AND user_id = $2",
-            uuid.UUID(entry_id), uuid.UUID(current_user["user_id"]),
-            fetch_one=True
+            uuid.UUID(entry_id),
+            uuid.UUID(current_user["user_id"]),
+            fetch_one=True,
         )
-        
+
         if not entry:
             raise HTTPException(status_code=404, detail="Knowledge entry not found")
-        
+
         # Get explicitly related entries
         explicit_related = []
-        if entry.get('related_entries'):
-            related_ids = [uuid.UUID(rid) for rid in entry['related_entries'] if rid]
+        if entry.get("related_entries"):
+            related_ids = [uuid.UUID(rid) for rid in entry["related_entries"] if rid]
             if related_ids:
                 explicit_related = await core_api_service.database.execute(
                     """
@@ -485,13 +440,14 @@ async def get_related_entries(
                     WHERE user_id = $1 AND id = ANY($2)
                     ORDER BY importance_score DESC
                     """,
-                    uuid.UUID(current_user["user_id"]), related_ids,
-                    fetch=True
+                    uuid.UUID(current_user["user_id"]),
+                    related_ids,
+                    fetch=True,
                 )
-        
+
         # Get entries with similar tags (implicit relationships)
         similar_by_tags = []
-        if entry.get('tags'):
+        if entry.get("tags"):
             similar_by_tags = await core_api_service.database.execute(
                 """
                 SELECT *, 
@@ -501,14 +457,16 @@ async def get_related_entries(
                 ORDER BY tag_overlap DESC, importance_score DESC
                 LIMIT $4
                 """,
-                uuid.UUID(current_user["user_id"]), uuid.UUID(entry_id), 
-                entry['tags'], limit,
-                fetch=True
+                uuid.UUID(current_user["user_id"]),
+                uuid.UUID(entry_id),
+                entry["tags"],
+                limit,
+                fetch=True,
             )
-        
+
         # Get entries in same category
         similar_by_category = []
-        if entry.get('category'):
+        if entry.get("category"):
             similar_by_category = await core_api_service.database.execute(
                 """
                 SELECT * FROM knowledge_entries 
@@ -516,68 +474,58 @@ async def get_related_entries(
                 ORDER BY importance_score DESC
                 LIMIT $4
                 """,
-                uuid.UUID(current_user["user_id"]), uuid.UUID(entry_id),
-                entry['category'], min(5, limit),
-                fetch=True
+                uuid.UUID(current_user["user_id"]),
+                uuid.UUID(entry_id),
+                entry["category"],
+                min(5, limit),
+                fetch=True,
             )
-        
+
         # Combine and deduplicate results
         all_related = {}
-        
+
         # Add explicit relationships (highest priority)
         for rel in explicit_related:
-            all_related[str(rel['id'])] = {
-                **dict(rel),
-                "relationship_type": "explicit",
-                "relationship_strength": 1.0
-            }
-        
+            all_related[str(rel["id"])] = {**dict(rel), "relationship_type": "explicit", "relationship_strength": 1.0}
+
         # Add tag-based relationships
         for rel in similar_by_tags:
-            if str(rel['id']) not in all_related:
-                tag_overlap = rel.get('tag_overlap', 0)
-                total_tags = len(entry.get('tags', []))
+            if str(rel["id"]) not in all_related:
+                tag_overlap = rel.get("tag_overlap", 0)
+                total_tags = len(entry.get("tags", []))
                 strength = tag_overlap / total_tags if total_tags > 0 else 0
-                all_related[str(rel['id'])] = {
+                all_related[str(rel["id"])] = {
                     **dict(rel),
                     "relationship_type": "similar_tags",
-                    "relationship_strength": strength
+                    "relationship_strength": strength,
                 }
-        
+
         # Add category-based relationships
         for rel in similar_by_category:
-            if str(rel['id']) not in all_related:
-                all_related[str(rel['id'])] = {
-                    **dict(rel),
-                    "relationship_type": "same_category",
-                    "relationship_strength": 0.5
-                }
-        
+            if str(rel["id"]) not in all_related:
+                all_related[str(rel["id"])] = {**dict(rel), "relationship_type": "same_category", "relationship_strength": 0.5}
+
         # Sort by relationship strength and limit
-        sorted_related = sorted(
-            all_related.values(), 
-            key=lambda x: x['relationship_strength'], 
-            reverse=True
-        )[:limit]
-        
+        sorted_related = sorted(all_related.values(), key=lambda x: x["relationship_strength"], reverse=True)[:limit]
+
         return {
             "entry_id": entry_id,
             "total_related": len(sorted_related),
             "related_entries": [
                 {
-                    "id": str(rel['id']),
-                    "title": rel['title'],
-                    "entry_type": rel['entry_type'],
-                    "category": rel.get('category'),
-                    "importance_score": rel.get('importance_score', 0),
-                    "relationship_type": rel['relationship_type'],
-                    "relationship_strength": rel['relationship_strength'],
-                    "tags": rel.get('tags', [])
+                    "id": str(rel["id"]),
+                    "title": rel["title"],
+                    "entry_type": rel["entry_type"],
+                    "category": rel.get("category"),
+                    "importance_score": rel.get("importance_score", 0),
+                    "relationship_type": rel["relationship_type"],
+                    "relationship_strength": rel["relationship_strength"],
+                    "tags": rel.get("tags", []),
                 }
                 for rel in sorted_related
-            ]
+            ],
         }
-        
+
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
     except Exception as e:
@@ -587,26 +535,27 @@ async def get_related_entries(
 
 @router.post("/entries/{entry_id}/link/{related_entry_id}", response_model=APIResponse)
 async def link_knowledge_entries(
-    entry_id: str = Path(...),
-    related_entry_id: str = Path(...),
-    current_user: dict = Depends(get_current_user)
+    entry_id: str = Path(...), related_entry_id: str = Path(...), current_user: dict = Depends(get_current_user)
 ):
     """Create explicit link between two knowledge entries"""
     try:
         # Verify both entries exist and belong to user
         entries = await core_api_service.database.execute(
             "SELECT id FROM knowledge_entries WHERE user_id = $1 AND id IN ($2, $3)",
-            uuid.UUID(current_user["user_id"]), uuid.UUID(entry_id), uuid.UUID(related_entry_id),
-            fetch=True
+            uuid.UUID(current_user["user_id"]),
+            uuid.UUID(entry_id),
+            uuid.UUID(related_entry_id),
+            fetch=True,
         )
-        
+
         if len(entries) != 2:
             raise HTTPException(status_code=404, detail="One or both entries not found")
-        
+
         # Add bidirectional relationship
-        await core_api_service.database.execute_transaction([
-            (
-                """
+        await core_api_service.database.execute_transaction(
+            [
+                (
+                    """
                 UPDATE knowledge_entries 
                 SET related_entries = array_append(
                     COALESCE(related_entries, '{}'), $1::text
@@ -615,10 +564,10 @@ async def link_knowledge_entries(
                 WHERE id = $2 AND user_id = $3
                 AND NOT ($1::text = ANY(COALESCE(related_entries, '{}')))
                 """,
-                (related_entry_id, uuid.UUID(entry_id), uuid.UUID(current_user["user_id"]))
-            ),
-            (
-                """
+                    (related_entry_id, uuid.UUID(entry_id), uuid.UUID(current_user["user_id"])),
+                ),
+                (
+                    """
                 UPDATE knowledge_entries 
                 SET related_entries = array_append(
                     COALESCE(related_entries, '{}'), $1::text
@@ -627,15 +576,13 @@ async def link_knowledge_entries(
                 WHERE id = $2 AND user_id = $3
                 AND NOT ($1::text = ANY(COALESCE(related_entries, '{}')))
                 """,
-                (entry_id, uuid.UUID(related_entry_id), uuid.UUID(current_user["user_id"]))
-            )
-        ])
-        
-        return APIResponse(
-            success=True,
-            message="Knowledge entries linked successfully"
+                    (entry_id, uuid.UUID(related_entry_id), uuid.UUID(current_user["user_id"])),
+                ),
+            ]
         )
-        
+
+        return APIResponse(success=True, message="Knowledge entries linked successfully")
+
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
     except Exception as e:
@@ -645,39 +592,36 @@ async def link_knowledge_entries(
 
 @router.delete("/entries/{entry_id}/link/{related_entry_id}", response_model=APIResponse)
 async def unlink_knowledge_entries(
-    entry_id: str = Path(...),
-    related_entry_id: str = Path(...),
-    current_user: dict = Depends(get_current_user)
+    entry_id: str = Path(...), related_entry_id: str = Path(...), current_user: dict = Depends(get_current_user)
 ):
     """Remove explicit link between two knowledge entries"""
     try:
         # Remove bidirectional relationship
-        await core_api_service.database.execute_transaction([
-            (
-                """
+        await core_api_service.database.execute_transaction(
+            [
+                (
+                    """
                 UPDATE knowledge_entries 
                 SET related_entries = array_remove(related_entries, $1),
                     updated_at = NOW()
                 WHERE id = $2 AND user_id = $3
                 """,
-                (related_entry_id, uuid.UUID(entry_id), uuid.UUID(current_user["user_id"]))
-            ),
-            (
-                """
+                    (related_entry_id, uuid.UUID(entry_id), uuid.UUID(current_user["user_id"])),
+                ),
+                (
+                    """
                 UPDATE knowledge_entries 
                 SET related_entries = array_remove(related_entries, $1),
                     updated_at = NOW()
                 WHERE id = $2 AND user_id = $3
                 """,
-                (entry_id, uuid.UUID(related_entry_id), uuid.UUID(current_user["user_id"]))
-            )
-        ])
-        
-        return APIResponse(
-            success=True,
-            message="Knowledge entries unlinked successfully"
+                    (entry_id, uuid.UUID(related_entry_id), uuid.UUID(current_user["user_id"])),
+                ),
+            ]
         )
-        
+
+        return APIResponse(success=True, message="Knowledge entries unlinked successfully")
+
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entry ID format")
     except Exception as e:

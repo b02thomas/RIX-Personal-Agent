@@ -2,10 +2,10 @@
 Utility functions for RIX Main Agent
 """
 
-import uuid
 import hashlib
+import uuid
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 def generate_uuid() -> str:
@@ -37,7 +37,7 @@ def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
     """Truncate text to maximum length"""
     if len(text) <= max_length:
         return text
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
 def validate_conversation_id(conversation_id: str) -> bool:
@@ -64,10 +64,10 @@ def extract_metadata_safely(data: Dict[str, Any], allowed_keys: Optional[list] =
     """Safely extract metadata from dictionary"""
     if not allowed_keys:
         allowed_keys = ["timestamp", "source", "type", "priority", "category"]
-    
+
     metadata = {}
     for key in allowed_keys:
         if key in data:
             metadata[key] = data[key]
-    
+
     return metadata

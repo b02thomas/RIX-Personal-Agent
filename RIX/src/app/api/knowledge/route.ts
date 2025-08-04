@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       params.push(limit, offset);
       const result = await client.query(query, params);
       
-      const knowledgeEntries = result.rows.map(row => ({
+      const knowledgeEntries = result.rows.map((row: any) => ({
         id: row.id,
         title: row.title,
         content: row.content,

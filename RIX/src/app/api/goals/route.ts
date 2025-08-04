@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       params.push(limit, offset);
       const result = await client.query(query, params);
       
-      const goals = result.rows.map(row => ({
+      const goals = result.rows.map((row: any) => ({
         id: row.id,
         title: row.title,
         description: row.description,

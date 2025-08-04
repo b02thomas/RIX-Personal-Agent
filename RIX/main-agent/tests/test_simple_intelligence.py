@@ -5,6 +5,12 @@
 
 import pytest
 import re
+import sys
+import os
+
+# Add main-agent directory to Python path so we can import 'app' module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 from app.services.message_router import MessageRouter
 from app.models.chat import WorkflowType
 

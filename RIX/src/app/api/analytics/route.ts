@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
       params.push(limit);
       const result = await client.query(query, params);
       
-      const analytics = result.rows.map(row => ({
+      const analytics = result.rows.map((row: any) => ({
         id: row.id,
         routineId: row.routine_id,
         analysisDate: row.analysis_date,
