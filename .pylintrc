@@ -1,0 +1,87 @@
+[MASTER]
+# Use multiple processes to speed up Pylint
+jobs=1
+
+# Pickle collected data for later comparisons
+persistent=yes
+
+# List of plugins
+load-plugins=
+
+# Blacklist files or directories
+ignore=node_modules,venv,.venv,migrations
+
+[MESSAGES CONTROL]
+# Disable specific warnings
+disable=C0114,C0115,C0116,  # Missing docstrings
+        R0903,              # Too few public methods
+        R0913,              # Too many arguments
+        W0613,              # Unused argument
+        C0103,              # Invalid name
+        R0801,              # Similar lines in files
+        W0511,              # TODO/FIXME comments
+        C0411,              # Wrong import position
+
+[REPORTS]
+# Set the output format
+output-format=colorized
+
+# Put messages in a separate file for each module / package specified on the
+# command line instead of printing them on stdout
+files-output=no
+
+# Tells whether to display a full report or only the messages
+reports=yes
+
+[REFACTORING]
+# Maximum number of nested blocks for function / method body
+max-nested-blocks=5
+
+[BASIC]
+# Naming style matching correct variable names
+variable-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Naming style matching correct function names
+function-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Naming style matching correct constant names
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=127
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=7
+
+# Maximum number of attributes for a class
+max-attributes=15
+
+# Maximum number of local variables for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=12
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities
+ignore-imports=no

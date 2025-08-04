@@ -41,7 +41,10 @@
       "Bash(kill:*)",
       "Bash(PORT=8002 python3 main.py)",
       "Bash(pkill:*)",
-      "Bash(pwdx:*)"
+      "Bash(pwdx:*)",
+      "Bash(gh workflow:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": []
   }

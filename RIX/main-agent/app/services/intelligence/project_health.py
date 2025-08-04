@@ -4,6 +4,7 @@
 # RELEVANT FILES: core/database.py, models/schemas.py, api/endpoints/tasks.py
 
 import logging
+import json
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, date, timedelta
 import statistics

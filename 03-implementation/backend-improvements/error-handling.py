@@ -145,6 +145,18 @@ class ErrorResponse:
         return result
 
 
+@dataclass
+class RixError:
+    """RIX-specific error class for consistent error handling"""
+    error_code: ErrorCode
+    message: str
+    details: Optional[List[ErrorDetail]] = None
+    timestamp: datetime = None
+    request_id: Optional[str] = None
+    user_id: Optional[str] = None
+    endpoint: Optional[str] = None
+
+
 class RIXException(Exception):
     """Base exception class for RIX-specific errors"""
     

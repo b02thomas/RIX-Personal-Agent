@@ -8,6 +8,7 @@ import asyncpg
 import time
 from typing import Dict, List, Any, Optional, Callable, Union
 from datetime import datetime, timedelta
+from uuid import uuid4
 from dataclasses import dataclass, field
 from contextlib import asynccontextmanager
 from enum import Enum

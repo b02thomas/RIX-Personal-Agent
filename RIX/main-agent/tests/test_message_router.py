@@ -383,7 +383,7 @@ class TestEdgeCasesAndErrorHandling(TestMessageRouter):
         
         workflow_scores = {}
         for workflow_type, config in router.workflow_patterns.items():
-            score = router._calculate_pattern_score(message, config)
+            score = router._calculate_pattern_score(long_message, config)
             workflow_scores[workflow_type] = score
         
         best_workflow = max(workflow_scores.items(), key=lambda x: x[1])

@@ -28,13 +28,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # Install from main-agent requirements.txt
+        if [ -f RIX/main-agent/requirements.txt ]; then pip install -r RIX/main-agent/requirements.txt; fi
+        # Install from any other requirements.txt files found
+        find . -name "requirements.txt" -not -path "./RIX/main-agent/*" -exec pip install -r {} \;
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=node_modules,venv,.venv
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=node_modules,venv,.venv
     - name: Test with pytest
       run: |
         pytest
