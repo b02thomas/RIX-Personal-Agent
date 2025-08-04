@@ -106,7 +106,7 @@ jobs:
       continue-on-error: true
 
     - name: Upload Python analysis artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: python-analysis-reports-${{ matrix.python-version }}
@@ -166,7 +166,7 @@ jobs:
       continue-on-error: true
 
     - name: Upload JavaScript analysis artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: javascript-analysis-reports
@@ -285,7 +285,7 @@ jobs:
         npm audit --audit-level=moderate
 
     - name: Upload dependency reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: dependency-reports
