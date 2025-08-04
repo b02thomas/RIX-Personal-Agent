@@ -9,6 +9,11 @@ on:
     branches: [ "main" ]
   workflow_dispatch:  # Allow manual triggering
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   # Python Analysis Job
   python-analysis:
@@ -225,21 +230,21 @@ jobs:
       continue-on-error: true
 
     - name: Run CodeQL Analysis
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: javascript, python
       continue-on-error: true
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
       continue-on-error: true
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
       continue-on-error: true
 
     - name: Upload Trivy results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
