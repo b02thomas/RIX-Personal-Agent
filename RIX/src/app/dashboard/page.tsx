@@ -1,316 +1,362 @@
+// /Users/benediktthomas/RIX Personal Agent/RIX/src/app/dashboard/page.tsx
+// Complete redesigned RIX Dashboard with crisp typography and logo integration
+// Provides overview and chat interface with floating AI sphere
+// RELEVANT FILES: components/ChatInterface.tsx, components/SphereWidget.tsx, globals.css, design-system.css
+
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { N8NWorkflowManager } from '@/components/n8n/n8n-workflow-manager';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Brain, 
-  Mic, 
-  Calendar, 
   BarChart3, 
-  Newspaper, 
-  Settings,
-  LogOut,
-  User
+  Calendar, 
+  CheckSquare, 
+  Target, 
+  BookOpen, 
+  TrendingUp,
+  Plus,
+  ArrowRight,
+  Clock,
+  Users,
+  Zap
 } from 'lucide-react';
+import { ChatInterface } from '../components/ChatInterface';
+import { SphereWidget } from '../components/SphereWidget';
 
-interface DashboardModule {
+interface Project {
   id: string;
   name: string;
-  description: string;
-  icon: React.ComponentType<any>;
-  color: string;
-  status: 'active' | 'inactive' | 'development';
+  progress: number;
+  status: 'active' | 'paused' | 'completed';
+  lastActivity: string;
+  type: 'personal' | 'business';
 }
 
-const dashboardModules: DashboardModule[] = [
-  {
-    id: 'voice-chat',
-    name: 'RIX Voice Hub',
-    description: 'Natürliche Sprachinteraktion mit Ihrem AI Assistenten',
-    icon: Mic,
-    color: 'text-blue-600',
-    status: 'development'
-  },
-  {
-    id: 'projects',
-    name: 'Projekt Management',
-    description: 'Organisieren und verwalten Sie Ihre Projekte effektiv',
-    icon: Brain,
-    color: 'text-indigo-600',
-    status: 'active'
-  },
-  {
-    id: 'tasks',
-    name: 'Aufgaben verwalten',
-    description: 'Intelligente Aufgabenverwaltung mit Priorisierung',
-    icon: Settings,
-    color: 'text-green-600',
-    status: 'active'
-  },
-  {
-    id: 'calendar',
-    name: 'Smart Calendar',
-    description: 'Intelligente Terminverwaltung und Zeitplanung',
-    icon: Calendar,
-    color: 'text-blue-600',
-    status: 'development'
-  },
-  {
-    id: 'intelligence',
-    name: 'Intelligence Overview',
-    description: 'AI-gestützte Einblicke und Produktivitätsanalyse',
-    icon: BarChart3,
-    color: 'text-purple-600',
-    status: 'development'
-  },
-  {
-    id: 'news',
-    name: 'News Intelligence',
-    description: 'Personalisierte Nachrichten und Trendanalyse',
-    icon: Newspaper,
-    color: 'text-orange-600',
-    status: 'development'
-  },
-  {
-    id: 'n8n',
-    name: 'N8N Workflows',
-    description: 'Workflow-Management und Automatisierung',
-    icon: Brain,
-    color: 'text-indigo-600',
-    status: 'active'
-  },
-  {
-    id: 'settings',
-    name: 'Settings & Integrations',
-    description: 'Umfassende Konfiguration und Drittanbieter-Integrationen',
-    icon: Settings,
-    color: 'text-gray-600',
-    status: 'development'
-  }
-];
+interface DashboardStats {
+  tasks: { total: number; completed: number; overdue: number };
+  calendar: { today: number; week: number };
+  goals: { active: number; progress: number };
+  routines: { completed: number; total: number };
+}
 
-export default function DashboardPage() {
-  const [activeModule, setActiveModule] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    // Mock user data for development
-    setUser({
-      id: 'mock-user-1',
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User'
-    });
+export default function Dashboard() {
+  const [activeView, setActiveView] = useState<'overview' | 'chat'>('overview');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    tasks: { total: 12, completed: 7, overdue: 2 },
+    calendar: { today: 3, week: 8 },
+    goals: { active: 4, progress: 67 },
+    routines: { completed: 3, total: 5 }
+  });
+
+  const loadDashboardData = useCallback(async () => {
+    try {
+      // Load projects
+      const projectsResponse = await fetch('/api/projects');
+      const projectsData = await projectsResponse.json();
+      setProjects(projectsData.projects || []);
+
+      // Load stats
+      const statsResponse = await fetch('/api/dashboard/stats');
+      const statsData = await statsResponse.json();
+      setStats(prev => statsData.stats || prev);
+    } catch (error) {
+      console.error('Dashboard data loading error:', error);
+    }
   }, []);
 
-  const handleModuleClick = (moduleId: string) => {
-    // Navigate to the corresponding route instead of setting active module
-    const moduleRoutes: Record<string, string> = {
-      'projects': '/dashboard/projects',
-      'tasks': '/dashboard/tasks',
-      'routines': '/dashboard/routines',
-      'calendar': '/dashboard/calendar',
-      'intelligence': '/dashboard/intelligence',
-      'news': '/dashboard/news',
-      'voice-chat': '/dashboard/voice',
-      'settings': '/dashboard/settings'
-    };
-    
-    if (moduleRoutes[moduleId]) {
-      window.location.href = moduleRoutes[moduleId];
-    } else {
-      setActiveModule(moduleId);
-    }
-  };
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
-  const handleLogout = () => {
-    // Mock logout
-    window.location.href = '/';
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Aktiv</Badge>;
-      case 'development':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Entwicklung</Badge>;
-      case 'inactive':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800">Inaktiv</Badge>;
-      default:
-        return <Badge variant="outline">Unbekannt</Badge>;
-    }
-  };
-
-  if (activeModule === 'n8n') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Button 
-            variant="outline" 
-            onClick={() => setActiveModule(null)}
-            className="mb-4"
-          >
-            ← Zurück zum Dashboard
-          </Button>
-          <h1 className="text-3xl font-bold mb-2">N8N Workflow Manager</h1>
-          <p className="text-muted-foreground">
-            Verwalten Sie Ihre N8N Workflows und Automatisierungen
-          </p>
+  const StatCard: React.FC<{
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    icon: React.ReactNode;
+    color: string;
+    trend?: string;
+  }> = ({ title, value, subtitle, icon, color, trend }) => (
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-300">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <div className={`p-2 rounded-lg ${color}`}>
+              {icon}
+            </div>
+            <h3 className="text-sm font-medium text-gray-300 tracking-wide">{title}</h3>
+          </div>
+          <div className="mb-1">
+            <span className="text-2xl font-bold text-white tracking-tight">{value}</span>
+          </div>
+          {subtitle && (
+            <p className="text-sm text-gray-400">{subtitle}</p>
+          )}
         </div>
-        
-        <N8NWorkflowManager 
-          onWorkflowSelect={(workflow) => {
-            console.log('Selected workflow:', workflow);
-            alert(`Workflow ausgewählt: ${workflow.name}`);
-          }}
-          autoRefresh={true}
-        />
+        {trend && (
+          <div className="text-xs text-green-400 font-medium">
+            {trend}
+          </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+
+  const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
+    <div className="bg-gray-800/40 backdrop-blur-sm rounded-lg p-4 border border-gray-700/40 hover:border-blue-500/40 transition-all duration-300 cursor-pointer group">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${
+            project.status === 'active' ? 'bg-green-500' :
+            project.status === 'paused' ? 'bg-yellow-500' :
+            'bg-gray-500'
+          }`} />
+          <h4 className="text-white font-medium text-sm tracking-wide">{project.name}</h4>
+        </div>
+        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+      </div>
+      
+      <div className="mb-2">
+        <div className="flex justify-between text-xs text-gray-400 mb-1">
+          <span>Fortschritt</span>
+          <span>{project.progress}%</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-1.5">
+          <div 
+            className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+            style={{ width: `${project.progress}%` }}
+          />
+        </div>
+      </div>
+      
+      <div className="text-xs text-gray-500">
+        {project.lastActivity}
+      </div>
+    </div>
+  );
+
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-rix-text-primary">RIX Dashboard</h1>
-          <p className="text-rix-text-secondary">
-            Willkommen zurück, {user?.firstName || 'Benutzer'}! Heute ist ein guter Tag für Produktivität.
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            <span className="text-sm">{user?.email}</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/20">
+      {/* Enhanced Header with Logo */}
+      <div className="border-b border-gray-700/50 bg-gray-900/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* RIX Logo */}
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-lg">
+                  {/* Neural Wave Pattern */}
+                  <svg width="24" height="24" viewBox="0 0 24 24" className="text-cyan-400">
+                    <path d="M3 12 Q6 8 9 12 T15 12 Q18 8 21 12" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.7" />
+                    <path d="M3 14 Q6 10 9 14 T15 14 Q18 10 21 14" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.5" />
+                    {/* Lightning Bolt */}
+                    <path d="M13 3 L8 12 H11 L10 21 L15 12 H12 L13 3 Z" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
+              
+              <div>
+                <h1 className="text-2xl font-bold text-white tracking-tight">RIX Dashboard</h1>
+                <p className="text-sm text-gray-400">Ihr KI-gestützter Produktivitäts-Assistent</p>
+              </div>
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-2 bg-gray-800/60 rounded-lg p-1">
+              <button
+                onClick={() => setActiveView('overview')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeView === 'overview' 
+                    ? 'bg-blue-600 text-white shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                📊 Übersicht
+              </button>
+              <button
+                onClick={() => setActiveView('chat')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeView === 'chat'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                💬 RIX Chat
+              </button>
+            </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Abmelden
-          </Button>
         </div>
       </div>
 
-      {/* Quick Stats Overview - Mobile optimized with RIX design */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
-        <Card className="touch-manipulation active:scale-95 transition-transform border-rix-border-primary bg-rix-surface">
-          <CardContent className="p-3 lg:p-4">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <div className="p-1.5 lg:p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Brain className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-xs lg:text-sm text-rix-text-secondary">Aktive Projekte</p>
-                <p className="text-lg lg:text-2xl font-bold text-rix-text-primary">3</p>
-              </div>
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {activeView === 'overview' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Stats Cards */}
+            <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+              <StatCard
+                title="Aufgaben"
+                value={stats.tasks.total - stats.tasks.completed}
+                subtitle={`${stats.tasks.completed} erledigt, ${stats.tasks.overdue} überfällig`}
+                icon={<CheckSquare className="w-5 h-5 text-white" />}
+                color="bg-blue-600/20"
+                trend="+12%"
+              />
+              
+              <StatCard
+                title="Termine"
+                value={stats.calendar.today}
+                subtitle={`${stats.calendar.week} diese Woche`}
+                icon={<Calendar className="w-5 h-5 text-white" />}
+                color="bg-green-600/20"
+              />
+              
+              <StatCard
+                title="Ziele"
+                value={`${stats.goals.progress}%`}
+                subtitle={`${stats.goals.active} aktive Ziele`}
+                icon={<Target className="w-5 h-5 text-white" />}
+                color="bg-purple-600/20"
+                trend="+5%"
+              />
+              
+              <StatCard
+                title="Routinen"
+                value={`${stats.routines.completed}/${stats.routines.total}`}
+                subtitle="Heute abgeschlossen"
+                icon={<TrendingUp className="w-5 h-5 text-white" />}
+                color="bg-orange-600/20"
+              />
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="touch-manipulation active:scale-95 transition-transform border-rix-border-primary bg-rix-surface">
-          <CardContent className="p-3 lg:p-4">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <div className="p-1.5 lg:p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-xs lg:text-sm text-rix-text-secondary">Termine heute</p>
-                <p className="text-lg lg:text-2xl font-bold text-rix-text-primary">0</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="touch-manipulation active:scale-95 transition-transform border-rix-border-primary bg-rix-surface">
-          <CardContent className="p-3 lg:p-4">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <div className="p-1.5 lg:p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-xs lg:text-sm text-rix-text-secondary">Produktivität</p>
-                <p className="text-lg lg:text-2xl font-bold text-rix-text-primary">85%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="touch-manipulation active:scale-95 transition-transform border-rix-border-primary bg-rix-surface">
-          <CardContent className="p-3 lg:p-4">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <div className="p-1.5 lg:p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-                <Newspaper className="h-4 w-4 lg:h-5 lg:w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <p className="text-xs lg:text-sm text-rix-text-secondary">Offene Aufgaben</p>
-                <p className="text-lg lg:text-2xl font-bold text-rix-text-primary">7</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Modules Grid - Mobile optimized */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        {dashboardModules.map((module) => {
-          const IconComponent = module.icon;
-          return (
-            <Card 
-              key={module.id}
-              className={cn(
-                'hover:shadow-rix-lg transition-all duration-200 cursor-pointer',
-                'touch-manipulation active:scale-95',
-                'border-rix-border-primary hover:border-rix-accent-primary/30 bg-rix-surface'
-              )}
-              onClick={() => handleModuleClick(module.id)}
-            >
-              <CardHeader className="pb-3 lg:pb-6">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className={`p-2 lg:p-3 rounded-lg ${module.color.replace('text-', 'bg-').replace('-600', '-100')}`}>
-                      <IconComponent className={`h-5 w-5 lg:h-6 lg:w-6 ${module.color}`} />
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-4">
+              <SphereWidget />
+              
+              {/* Quick Actions */}
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
+                <h3 className="text-lg font-semibold text-white mb-3 tracking-wide">Schnellaktionen</h3>
+                <div className="space-y-2">
+                  <button className="w-full text-left p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-lg text-white text-sm transition-all duration-200 flex items-center gap-3">
+                    <Calendar className="w-4 h-4 text-blue-400" />
+                    Neuer Termin
+                  </button>
+                  <button className="w-full text-left p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-lg text-white text-sm transition-all duration-200 flex items-center gap-3">
+                    <CheckSquare className="w-4 h-4 text-green-400" />
+                    Neue Aufgabe
+                  </button>
+                  <button className="w-full text-left p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-lg text-white text-sm transition-all duration-200 flex items-center gap-3">
+                    <BookOpen className="w-4 h-4 text-purple-400" />
+                    Wissen speichern
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Recent Projects */}
+              <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 border border-gray-700/40">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-white tracking-wide">Aktuelle Projekte</h2>
+                  <button className="flex items-center gap-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 text-sm transition-all duration-200">
+                    <Plus className="w-4 h-4" />
+                    Neues Projekt
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ProjectCard 
+                    project={{
+                      id: '1',
+                      name: 'Personal Productivity',
+                      progress: 75,
+                      status: 'active',
+                      lastActivity: 'Vor 2 Stunden',
+                      type: 'personal'
+                    }}
+                  />
+                  <ProjectCard 
+                    project={{
+                      id: '2', 
+                      name: 'Learning Goals',
+                      progress: 45,
+                      status: 'active',
+                      lastActivity: 'Gestern',
+                      type: 'personal'
+                    }}
+                  />
+                  <ProjectCard 
+                    project={{
+                      id: '3',
+                      name: 'Business Development',
+                      progress: 30,
+                      status: 'paused',
+                      lastActivity: 'Vor 3 Tagen',
+                      type: 'business'
+                    }}
+                  />
+                  <ProjectCard 
+                    project={{
+                      id: '4',
+                      name: 'Health & Fitness',
+                      progress: 88,
+                      status: 'active',
+                      lastActivity: 'Heute',
+                      type: 'personal'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Today's Schedule */}
+              <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 border border-gray-700/40">
+                <h2 className="text-xl font-semibold text-white tracking-wide mb-4">Heute geplant</h2>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="w-1 h-12 bg-blue-500 rounded-full" />
+                    <div className="flex items-center gap-3 text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">09:00</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base lg:text-lg leading-tight text-rix-text-primary">{module.name}</CardTitle>
-                      <CardDescription className="text-xs lg:text-sm mt-1 line-clamp-2 text-rix-text-secondary">
-                        {module.description}
-                      </CardDescription>
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium">Team Meeting</h4>
+                      <p className="text-sm text-gray-400">Sprint Planning Session</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Users className="w-3 h-3" />
+                      <span>4 Teilnehmer</span>
                     </div>
                   </div>
-                  <div className="flex-shrink-0">
-                    {getStatusBadge(module.status)}
+                  
+                  <div className="flex items-center gap-4 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="w-1 h-12 bg-green-500 rounded-full" />
+                    <div className="flex items-center gap-3 text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">14:00</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium">Client Call</h4>
+                      <p className="text-sm text-gray-400">Project Review & Feedback</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Zap className="w-3 h-3" />
+                      <span>High Priority</span>
+                    </div>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Button 
-                  variant="outline" 
-                  className="w-full min-h-[44px] touch-manipulation active:scale-95"
-                  disabled={module.status === 'inactive'}
-                >
-                  {module.status === 'active' ? 'Öffnen' : 
-                   module.status === 'development' ? 'In Entwicklung' : 'Nicht verfügbar'}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Development Notice with RIX styling */}
-      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/10 border border-rix-border-primary rounded-lg">
-        <div className="flex items-center gap-2 text-blue-800 dark:text-blue-400">
-          <Settings className="h-4 w-4" />
-          <span className="text-sm font-medium">RIX Development Environment</span>
-        </div>
-        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-          RIX läuft im Entwicklungsmodus mit erweiterten Debugging-Features. 
-          Alle Module sind voll funktionsfähig und produktionsbereit.
-        </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Chat View */
+          <div className="max-w-4xl mx-auto">
+            <div className="h-[calc(100vh-200px)]">
+              <ChatInterface />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
