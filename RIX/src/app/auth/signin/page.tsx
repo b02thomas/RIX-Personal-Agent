@@ -1,106 +1,62 @@
+// /src/app/auth/signin/page.tsx
+// Professional RIX signin page with theme-aware gradients and branding
+// Features smooth theme transitions, mobile optimization, and beautiful design
+// RELEVANT FILES: login-form.tsx, theme-provider.tsx, RixLogo.tsx, design-system.css
+
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuthStore } from '@/store/auth-store';
+import { LoginForm } from '@/components/auth/login-form';
+import { useTheme } from '@/components/providers/theme-provider';
+import { cn } from '@/lib/utils';
 
 export default function SignInPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+  const { effectiveTheme, mounted } = useTheme();
 
-    const router = useRouter();
-    const { setUser, setError: setAuthError } = useAuthStore();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
-
-        try {
-            const response = await fetch('/api/auth/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Anmeldung fehlgeschlagen');
-            }
-
-            setUser(data.user);
-            router.push('/dashboard');
-        } catch (err: any) {
-            setError(err.message);
-            setAuthError(err.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl text-center">Willkommen zurück</CardTitle>
-                    <CardDescription className="text-center">
-                        Melden Sie sich in Ihrem RIX Konto an
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <label htmlFor="email" className="text-sm font-medium">
-                                E-Mail
-                            </label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="ihre@email.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label htmlFor="password" className="text-sm font-medium">
-                                Passwort
-                            </label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="Ihr Passwort"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {error && (
-                            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                                {error}
-                            </div>
-                        )}
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Anmeldung...' : 'Anmelden'}
-                        </Button>
-                    </form>
-                    <div className="mt-4 text-center text-sm">
-                        <span className="text-muted-foreground">Noch kein Konto? </span>
-                        <Link href="/auth/signup" className="text-primary hover:underline">
-                            Registrieren
-                        </Link>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
+        <div className="w-full max-w-md h-96 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" data-testid="signin-loading" />
+      </div>
     );
+  }
+
+  return (
+    <div className={cn(
+      'min-h-screen flex items-center justify-center p-4 transition-all duration-500',
+      // Professional theme-aware gradient backgrounds
+      effectiveTheme === 'dark' 
+        ? 'bg-gradient-to-br from-gray-900 via-blue-900/20 to-gray-900'
+        : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'
+    )}>
+      {/* Background Pattern */}
+      <div className={cn(
+        'absolute inset-0 transition-opacity duration-500',
+        effectiveTheme === 'dark'
+          ? 'bg-[radial-gradient(circle_at_50%_120%,rgba(59,130,246,0.1),rgba(0,0,0,0))]'
+          : 'bg-[radial-gradient(circle_at_50%_120%,rgba(59,130,246,0.1),rgba(255,255,255,0))]'
+      )} />
+      
+      {/* Floating Elements for Visual Interest */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={cn(
+          'absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl transition-all duration-1000',
+          effectiveTheme === 'dark'
+            ? 'bg-blue-500/10'
+            : 'bg-blue-400/20'
+        )} />
+        <div className={cn(
+          'absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl transition-all duration-1000 delay-300',
+          effectiveTheme === 'dark'
+            ? 'bg-cyan-500/10'
+            : 'bg-indigo-400/20'
+        )} />
+      </div>
+      
+      {/* Login Form */}
+      <div className="relative z-10 w-full flex justify-center">
+        <LoginForm className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700" />
+      </div>
+    </div>
+  );
 } 

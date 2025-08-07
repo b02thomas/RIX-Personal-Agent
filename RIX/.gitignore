@@ -27,6 +27,8 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.production
 
 # vercel
 .vercel
@@ -40,4 +42,32 @@ next-env.d.ts
 .idea/
 
 # OS
-Thumbs.db 
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Backend specific
+main-agent/.env
+main-agent/.env.production
+main-agent/venv/
+main-agent/__pycache__/
+
+# Logs
+*.log
+dev.log
+frontend.log
+server.log
+
+# Security reports
+bandit_*.json
+
+# Test artifacts
+*.tsbuildinfo 

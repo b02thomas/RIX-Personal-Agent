@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser } from '@/lib/auth';
-import { createToken } from '@/lib/auth/jwt';
+import { createUser, createToken } from '@/lib/auth';
 import { MockAuth } from '@/lib/mock-auth';
 
 export async function POST(request: NextRequest) {

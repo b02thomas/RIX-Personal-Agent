@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken, findUserById, createToken } from '@/lib/auth';
+import { validateRefreshToken, createToken, createRefreshToken, createUserSession, deleteUserSession, getTokenExpirationTime } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,15 +16,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify refresh token
-        const payload = await verifyToken(refreshToken);
-        const user = await findUserById(payload.userId);
+        // Verify refresh token against database
+        const userData = await validateRefreshToken(refreshToken);
 
-        if (!user) {
+        if (!userData) {
             return NextResponse.json(
                 { 
-                    error: 'Benutzer nicht gefunden',
-                    code: 'AUTH_USER_NOT_FOUND',
+                    error: 'Ungültiger oder abgelaufener refresh token',
+                    code: 'AUTH_REFRESH_INVALID',
                     timestamp: new Date().toISOString()
                 },
                 { status: 401 }
@@ -32,22 +31,57 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate new access token
-        const accessToken = await createToken({
-            userId: user.id,
-            email: user.email,
+        const newAccessToken = await createToken({
+            userId: userData.userId,
+            email: userData.email,
         });
 
+        // Generate new refresh token (refresh token rotation for security)
+        const newRefreshToken = await createRefreshToken({
+            userId: userData.userId,
+            email: userData.email,
+        });
+
+        // Delete old session and create new one
+        await deleteUserSession(refreshToken);
+        await createUserSession(userData.userId, newRefreshToken);
+
+        // Calculate exact expiration time for frontend
+        const tokenExpiration = getTokenExpirationTime(newAccessToken);
+        
         const response = NextResponse.json({
             message: 'Token erfolgreich erneuert',
-            accessToken,
+            accessToken: newAccessToken,
+            tokenType: 'Bearer',
+            expiresIn: 15 * 60, // 15 minutes in seconds
+            tokenExpiresAt: tokenExpiration, // Exact expiration timestamp
+            refreshedAt: new Date().toISOString(),
         });
 
-        // Set new access token cookie
-        response.cookies.set('accessToken', accessToken, {
+        // Set new access token cookie with enhanced security
+        response.cookies.set('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60, // 15 minutes
+            path: '/',
+            // Add additional security headers
+            ...(process.env.NODE_ENV === 'production' && {
+                domain: process.env.COOKIE_DOMAIN,
+            })
+        });
+        
+        // Add token to response header for client-side access
+        response.headers.set('X-Access-Token', newAccessToken);
+        response.headers.set('X-Token-Expires-At', tokenExpiration?.toString() || '');
+
+        // Set new refresh token cookie (refresh token rotation)
+        response.cookies.set('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 15 * 60, // 15 minutes
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: '/api/auth',
         });
 
         return response;

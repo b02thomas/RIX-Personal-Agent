@@ -16,7 +16,12 @@
     "test:mobile:build": "npm run build && npm run test:mobile",
     "analyze": "ANALYZE=true npm run build",
     "pwa:test": "npm run build && npx pwa-test-suite",
-    "lighthouse:mobile": "npx lighthouse http://localhost:3000 --preset=perf --form-factor=mobile --throttling-method=devtools --output=html --output-path=./lighthouse-mobile.html"
+    "lighthouse:mobile": "npx lighthouse http://localhost:3000 --preset=perf --form-factor=mobile --throttling-method=devtools --output=html --output-path=./lighthouse-mobile.html",
+    "validate:env": "./scripts/validate-environment.sh development",
+    "validate:env:prod": "./scripts/validate-environment.sh production",
+    "validate:full": "./scripts/validate-environment.sh development with-startup-test",
+    "predev": "./scripts/validate-environment.sh development",
+    "prebuild": "./scripts/validate-environment.sh development"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
